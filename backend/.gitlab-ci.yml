@@ -1,0 +1,19 @@
+stages:
+  - build
+  - test
+  - sonarqube-check
+
+build:
+  stage: build
+  script:
+    - ./gradlew assemble --no-daemon
+
+test:
+  stage: test
+  script:
+    - ./gradlew test --no-daemon
+
+sonarqube-check:
+  stage: sonarqube-check
+  script:
+    - echo "This is a demo stage replacing SonarQube analysis"
