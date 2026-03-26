@@ -8,19 +8,36 @@ stages:
   - test
   - sonarqube-check
 
-build:
+backend-build:
   stage: build
   script:
     - cd backend
     - ./gradlew assemble --no-daemon
 
-test:
+frontend-build:
+  stage: build
+  script:
+    - cd frontend
+    - corepack enable
+    - pnpm install
+    - pnpm run build
+
+backend-test:
   stage: test
   script:
     - cd backend
     - ./gradlew test --no-daemon
 
+frontend-test:
+  stage: test
+  script:
+    - cd frontend
+    - corepack enable
+    - pnpm install
+    - pnpm lint
+
 sonarqube-check:
   stage: sonarqube-check
   script:
     - echo "This is a demo stage replacing SonarQube analysis"
+
