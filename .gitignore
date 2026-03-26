@@ -1,0 +1,11 @@
+# macOS system files
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+
+# Logs
+*.log
+
+# Env files
+.env
