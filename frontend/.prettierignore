@@ -1,0 +1,18 @@
+node_modules
+.next
+dist
+build
+
+# IDE
+.idea/
+
+# logs
+*.log
+
+# lockfiles (optional but common)
+pnpm-lock.yaml
+
+# environment files
+.env
+.env.local
+.env.*.local
