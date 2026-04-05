@@ -32,7 +32,7 @@ frontend-test:
   script:
     - cd frontend
     - pnpm install --frozen-lockfile
-    - pnpm lint
+    - pnpm check
 
 sonarqube-check:
   stage: sonarqube-check
