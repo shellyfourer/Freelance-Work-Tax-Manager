@@ -50,7 +50,6 @@
 }
 
 :root {
-
   /* Low fidelity FTM design tokens */
 
   /* Palette */
@@ -142,7 +141,6 @@
 }
 
 .dark {
-
   /* Override shadcn semantic tokens for dark mode */
 
   --background: var(--ink);
