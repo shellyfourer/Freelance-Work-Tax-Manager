@@ -1,8 +1,9 @@
 export type TaxPeriod = "annual" | "monthly";
 
 export interface TaxCalculatorInput {
-  income: number;
+  incomeAmount: number;
   period: TaxPeriod;
+  country: string;
 }
 
 export interface TaxLineItem {

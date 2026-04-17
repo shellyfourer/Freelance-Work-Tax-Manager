@@ -7,11 +7,12 @@ import { calculateTax } from "@/lib/api/tax";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 
 export function TaxCalculatorLayout() {
-  const [result, setResult] = useState<TaxCalculatorResult | null>(null);
+  const [result, setResult] = useState<TaxCalculatorResult | null>(null); //stores api results
   const [isCalculating, setIsCalculating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [submittedIncome, setSubmittedIncome] = useState("");
+  const [error, setError] = useState<string | null>(null); //stores error messages if api fails
+  const [submittedIncome, setSubmittedIncome] = useState(""); //specifically FOR DISPLAY in results
 
+  //this is needed for the form to be cleared when the user types a new income
   const handleFormChange = () => {
     if (result !== null || error !== null) {
       setResult(null);
@@ -21,20 +22,25 @@ export function TaxCalculatorLayout() {
   };
 
   const handleSubmit = async (data: TaxFormValues) => {
-    const parsed = parseFloat(data.income.replace(/,/g, ""));
+    const parsed = parseFloat(data.incomeAmount.replace(/,/g, ""));
 
+    //VERY IMPORTANT, we need to clear the data befroe we make the API call
     setIsCalculating(true);
     setError(null);
     setResult(null);
 
     try {
-      const response = await calculateTax({ income: parsed, period: "annual" });
-      setResult(response);
-      setSubmittedIncome(data.income);
+      const response = await calculateTax({
+        incomeAmount: parsed,
+        period: "annual",
+        country: data.country,
+      });
+      setResult(response); //THIS IS FOR DISPLAY
+      setSubmittedIncome(data.incomeAmount); //THIS IS FOR UI (this is the original user input)
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
-      setIsCalculating(false);
+      setIsCalculating(false); //we always need to turn of the loading
     }
   };
 

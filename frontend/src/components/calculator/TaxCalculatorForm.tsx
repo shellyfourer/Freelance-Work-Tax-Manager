@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; //CONTROLLER is needed for non native inputs
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+//needed to match DTO, this is what our form will give
 export interface TaxFormValues {
-  income: string;
+  incomeAmount: string;
   country: string;
 }
 
+//THIS IS what we have to set in layout
 interface TaxCalculatorFormProps {
   onSubmit: (data: TaxFormValues) => void;
   isCalculating: boolean;
@@ -25,6 +27,7 @@ interface TaxCalculatorFormProps {
   onFormChange: () => void;
 }
 
+//THIs is where we actually create the form
 export function TaxCalculatorForm({
   onSubmit,
   isCalculating,
@@ -37,10 +40,10 @@ export function TaxCalculatorForm({
     control,
     formState: { errors },
   } = useForm<TaxFormValues>({
-    defaultValues: { income: "", country: "lithuania" },
+    defaultValues: { incomeAmount: "", country: "LT" },
   });
 
-  const fieldError = errors.income?.message ?? errors.country?.message ?? apiError;
+  const fieldError = errors.incomeAmount?.message ?? errors.country?.message ?? apiError;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -63,14 +66,14 @@ export function TaxCalculatorForm({
               min="0"
               step="any"
               placeholder="Enter your income"
-              aria-invalid={!!errors.income}
+              aria-invalid={!!errors.incomeAmount}
               className="h-12 border-border bg-input-background"
               style={{
                 borderRadius: "var(--radius-input)",
                 fontSize: "var(--text-base)",
                 borderWidth: "1.5px",
               }}
-              {...register("income", {
+              {...register("incomeAmount", {
                 required: "Please enter a valid income amount",
                 validate: (val) => {
                   const parsed = parseFloat(String(val).replace(/,/g, ""));
@@ -119,7 +122,7 @@ export function TaxCalculatorForm({
                     className="ring-0 border-[1.5px] border-border w-[--radix-select-trigger-width]"
                     style={{ borderRadius: "var(--radius-card)" }}
                   >
-                    <SelectItem value="lithuania">Lithuania</SelectItem>
+                    <SelectItem value="LT">Lithuania</SelectItem>
                   </SelectContent>
                 </Select>
               )}
