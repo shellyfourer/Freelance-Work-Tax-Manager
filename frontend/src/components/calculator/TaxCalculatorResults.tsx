@@ -3,8 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { ResultValue } from "@/components/calculator/ResultValue";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 
-// TO DO, need to add line item representation
-//this is for now, later it will be country based
+// Currency symbol — will be country-driven later
 const CURRENCY = "€";
 
 //this is also how we initiate this function in the layout
@@ -70,9 +69,33 @@ export function TaxCalculatorResults({
             prominent={false}
           />
         </div>
-
+        {result && result.lineItems.length > 0 && (
+          <div className="flex flex-col gap-2 pl-2 border-l-2 border-border">
+            {result.lineItems.map((item) => (
+              <div key={item.name} className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-muted-foreground" style={{ fontSize: "var(--text-caption)" }}>
+                    {item.name}
+                  </p>
+                  <span
+                    className="text-muted-foreground"
+                    style={{ fontSize: "var(--text-caption)", opacity: 0.7 }}
+                  >
+                    {(item.rate * 100).toFixed(2)}%
+                  </span>
+                </div>
+                <span
+                  className="text-muted-foreground shrink-0"
+                  style={{ fontSize: "var(--text-caption)" }}
+                >
+                  {CURRENCY}
+                  {item.amount.toFixed(2)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
         <Separator className="opacity-50" />
-
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <p className="text-foreground" style={{ fontSize: "var(--text-h4)" }}>
