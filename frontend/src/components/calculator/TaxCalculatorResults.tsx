@@ -3,7 +3,6 @@ import { Separator } from "@/components/ui/separator";
 import { ResultValue } from "@/components/calculator/ResultValue";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 
-
 // TO DO, need to add line item representation
 //this is for now, later it will be country based
 const CURRENCY = "€";
