@@ -77,8 +77,7 @@ export function TaxCalculatorForm({
                 required: "Please enter a valid income amount",
                 validate: (val) => {
                   const parsed = parseFloat(String(val).replace(/,/g, ""));
-                  if (isNaN(parsed) || parsed < 0) return "Please enter a valid income amount";
-                  if (parsed === 0) return "Income must be greater than zero";
+                  if (isNaN(parsed) || parsed <= 0) return "Income must be greater than zero";
                   return true;
                 },
                 onChange: onFormChange,
