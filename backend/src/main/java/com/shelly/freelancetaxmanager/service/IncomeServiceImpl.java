@@ -71,7 +71,6 @@ public class IncomeServiceImpl implements IncomeService {
 
         return incomeRecordRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Income record not found with ID: " + id));
-
     }
 
     @Override
