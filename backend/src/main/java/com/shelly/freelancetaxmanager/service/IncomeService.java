@@ -1,5 +1,4 @@
 package com.shelly.freelancetaxmanager.service;
-
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 
 import java.util.List;

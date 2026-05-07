@@ -52,6 +52,7 @@ public class IncomeRecord {
     }
 
     public Long getIncomeId() { return incomeId; }
+    public void setIncomeId(Long incomeId) { this.incomeId = incomeId; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
