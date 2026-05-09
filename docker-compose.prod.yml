@@ -1,0 +1,14 @@
+services:
+  backend:
+    image: shellyfourer/freelance-tax-manager-backend:latest
+    container_name: tax-manager-backend
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: shellyfourer/freelance-tax-manager-frontend:latest
+    container_name: tax-manager-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
