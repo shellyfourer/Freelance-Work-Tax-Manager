@@ -1,7 +1,8 @@
 import type { TaxCalculatorInput, TaxCalculatorResult } from "@/lib/types/tax";
 
 export async function calculateTax(input: TaxCalculatorInput): Promise<TaxCalculatorResult> {
-  const res = await fetch("http://localhost:8080/api/tax/calculate", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+  const res = await fetch(`${apiUrl}/api/tax/calculate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

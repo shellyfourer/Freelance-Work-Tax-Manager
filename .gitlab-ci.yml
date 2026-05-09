@@ -51,7 +51,7 @@ push-frontend-image:
     - main
   script:
     - echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-    - docker build -t "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest" ./frontend
+    - docker build --build-arg NEXT_PUBLIC_API_URL="$NEXT_PUBLIC_API_URL" -t "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest" ./frontend
     - docker push "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest"
 
 sonarqube-check:
