@@ -6,6 +6,7 @@ cache:
 stages:
   - build
   - test
+  - docker-build
   - sonarqube-check
 
 backend-build:
@@ -34,6 +35,16 @@ frontend-test:
     - pnpm install --frozen-lockfile
     - pnpm check
     - pnpm test
+
+docker-build-backend:
+  stage: docker-build
+  script:
+    - docker build -t backend-image ./backend
+
+docker-build-frontend:
+  stage: docker-build
+  script:
+    - docker build -t frontend-image ./frontend
 
 sonarqube-check:
   stage: sonarqube-check
