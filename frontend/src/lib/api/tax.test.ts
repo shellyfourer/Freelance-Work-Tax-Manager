@@ -26,6 +26,7 @@ describe("calculateTax", () => {
         json: () => Promise.resolve(mockResponse),
       }),
     );
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
     await calculateTax(mockInput);
 
@@ -36,6 +37,7 @@ describe("calculateTax", () => {
     });
 
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   test("returns mapped TaxCalculatorResult on a successful response", async () => {
