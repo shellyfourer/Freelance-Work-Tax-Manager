@@ -6,7 +6,7 @@ cache:
 stages:
   - build
   - test
-  - docker
+  - push
   - sonarqube-check
 
 backend-build:
@@ -36,15 +36,19 @@ frontend-test:
     - pnpm check
     - pnpm test
 
-docker-backend:
-  stage: docker
+push-backend-image:
+  stage: push
+  only:
+    - main
   script:
     - echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
     - docker build -t "$DOCKERHUB_USERNAME/freelance-tax-manager-backend:latest" ./backend
     - docker push "$DOCKERHUB_USERNAME/freelance-tax-manager-backend:latest"
 
-docker-frontend:
-  stage: docker
+push-frontend-image:
+  stage: push
+  only:
+    - main
   script:
     - echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
     - docker build -t "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest" ./frontend
