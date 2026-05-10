@@ -116,6 +116,7 @@
   --radius-button: var(--r);
   --radius-card: var(--r-card);
   --radius-input: var(--r);
+  --radius-modal: var(--r-card);
 
   --elevation-sm: var(--shadow-card);
 
