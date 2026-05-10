@@ -24,7 +24,6 @@ const mockRecord: IncomeRecord = {
   updatedAt: "2026-01-15T10:00:00",
 };
 
-
 describe("createIncomeRecord", () => {
   test("calls POST /api/income/create with the correct request body", async () => {
     vi.stubGlobal(
@@ -61,9 +60,7 @@ describe("createIncomeRecord", () => {
   test("throws on a non-ok response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 
-    await expect(createIncomeRecord(mockRequest)).rejects.toThrow(
-      "Failed to create income record",
-    );
+    await expect(createIncomeRecord(mockRequest)).rejects.toThrow("Failed to create income record");
 
     vi.unstubAllGlobals();
   });
