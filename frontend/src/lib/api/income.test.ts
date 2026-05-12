@@ -25,7 +25,7 @@ const mockRecord: IncomeRecord = {
 };
 
 describe("createIncomeRecord", () => {
-  test("calls POST /api/income/create with the correct request body", async () => {
+  test("calls POST /api/income-records with the correct request body", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
@@ -34,7 +34,7 @@ describe("createIncomeRecord", () => {
 
     await createIncomeRecord(mockRequest);
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income/create", {
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockRequest),
@@ -67,7 +67,7 @@ describe("createIncomeRecord", () => {
 });
 
 describe("getIncomeRecordsByUser", () => {
-  test("calls GET /api/income?userId={id} with the correct URL", async () => {
+  test("calls GET /api/income-records?userId={id} with the correct URL", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([mockRecord]) }),
@@ -76,7 +76,7 @@ describe("getIncomeRecordsByUser", () => {
 
     await getIncomeRecordsByUser(1);
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income?userId=1");
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records?userId=1");
 
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -105,7 +105,7 @@ describe("getIncomeRecordsByUser", () => {
 });
 
 describe("updateIncomeRecord", () => {
-  test("calls PUT /api/income/{id} with the correct request body", async () => {
+  test("calls PUT /api/income-records/{id} with the correct request body", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
@@ -114,7 +114,7 @@ describe("updateIncomeRecord", () => {
 
     await updateIncomeRecord(1, mockRequest);
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income/1", {
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records/1", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockRequest),
@@ -149,7 +149,7 @@ describe("updateIncomeRecord", () => {
 });
 
 describe("deleteIncomeRecord", () => {
-  test("calls DELETE /api/income/{id} with the correct URL", async () => {
+  test("calls DELETE /api/income-records/{id} with the correct URL", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
@@ -158,7 +158,7 @@ describe("deleteIncomeRecord", () => {
 
     await deleteIncomeRecord(1);
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income/1", {
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records/1", {
       method: "DELETE",
     });
 
