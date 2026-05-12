@@ -50,7 +50,7 @@ class IncomeRecordControllerTest {
     void createIncomeRecord_returns200_withValidInput() throws Exception {
         when(incomeService.createIncomeRecord(any(IncomeRecord.class))).thenReturn(incomeRecord);
 
-        mockMvc.perform(post("/api/income/create")
+        mockMvc.perform(post("/api/income-records")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -59,13 +59,13 @@ class IncomeRecordControllerTest {
                             "incomeDate": "2026-01-01"
                         }
                         """))
-                .andExpect(status().isOk())
+                .andExpect(status().is(201))
                 .andExpect(jsonPath("$.incomeId").value(1));
     }
 
     @Test
     void createIncomeRecord_returns400_whenAmountIsNull() throws Exception {
-        mockMvc.perform(post("/api/income/create")
+        mockMvc.perform(post("/api/income-records")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -78,7 +78,7 @@ class IncomeRecordControllerTest {
 
     @Test
     void createIncomeRecord_returns400_whenAmountIsNegative() throws Exception {
-        mockMvc.perform(post("/api/income/create")
+        mockMvc.perform(post("/api/income-records")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -94,7 +94,7 @@ class IncomeRecordControllerTest {
     void getIncomeRecordById_returns200_withValidId() throws Exception {
         when(incomeService.getIncomeRecordById(1L)).thenReturn(incomeRecord);
 
-        mockMvc.perform(get("/api/income/1"))
+        mockMvc.perform(get("/api/income-records/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incomeId").value(1))
                 .andExpect(jsonPath("$.currency").value("EUR"));
@@ -104,7 +104,7 @@ class IncomeRecordControllerTest {
     void deleteIncomeRecord_returns200_withValidId() throws Exception {
         when(incomeService.deleteIncomeRecord(1L)).thenReturn(incomeRecord);
 
-        mockMvc.perform(delete("/api/income/1"))
+        mockMvc.perform(delete("/api/income-records/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incomeId").value(1));
     }
@@ -113,7 +113,7 @@ class IncomeRecordControllerTest {
     void getIncomeRecordsByUser_returns200_withValidUserId() throws Exception {
         when(incomeService.getIncomeRecordsByUser(1L)).thenReturn(List.of(incomeRecord));
 
-        mockMvc.perform(get("/api/income").param("userId", "1"))
+        mockMvc.perform(get("/api/income-records").param("userId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].incomeId").value(1));
     }
