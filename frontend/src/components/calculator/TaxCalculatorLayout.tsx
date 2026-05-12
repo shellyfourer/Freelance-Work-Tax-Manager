@@ -45,7 +45,7 @@ export function TaxCalculatorLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+    <div className="flex-1 bg-background flex flex-col items-center justify-center px-4 md:px-8 py-10">
       <div className="w-full max-w-130 mb-8 text-center">
         <h1 style={{ fontSize: "var(--text-h2)" }}>Freelance Work &amp; Tax Manager</h1>
         <p className="text-muted-foreground mt-1" style={{ fontSize: "var(--text-caption)" }}>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Patrick_Hand, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AppNav } from "@/components/AppNav";
 
 const patrickHand = Patrick_Hand({
   variable: "--font-patrick-hand",
@@ -25,7 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${patrickHand.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AppNav />
+        {children}
+      </body>
     </html>
   );
 }

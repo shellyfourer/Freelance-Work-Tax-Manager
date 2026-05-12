@@ -47,6 +47,17 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Custom design tokens */
+  --text-h2: var(--text-h2);
+  --text-h4: var(--text-h4);
+  --text-base: var(--text-base);
+  --text-caption: var(--text-caption);
+  --radius-button: var(--radius-button);
+  --radius-card: var(--radius-card);
+  --radius-input: var(--radius-input);
+  --radius-modal: var(--radius-modal);
+  --shadow-elevation-sm: var(--elevation-sm);
 }
 
 :root {
@@ -74,10 +85,10 @@
   --shadow-card: 0px 4px 4px 0px rgba(0, 0, 0, 0.16);
 
   /* Typography — only the 4 sizes used in the calculator screen */
-  --text-h2: 1.75rem;
-  --text-h4: 1.375rem;
-  --text-base: 1.125rem;
-  --text-caption: 1rem;
+  --text-h2: clamp(1.375rem, 3.5vw, 1.75rem);
+  --text-h4: clamp(1.125rem, 2.5vw, 1.375rem);
+  --text-base: clamp(1rem, 1.8vw, 1.125rem);
+  --text-caption: clamp(0.875rem, 1.5vw, 1rem);
 
   /* Font */
   --font-primary: var(--font-patrick-hand);
