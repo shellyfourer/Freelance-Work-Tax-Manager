@@ -3,7 +3,7 @@ import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export async function createIncomeRecord(data: IncomeRecordRequest): Promise<IncomeRecord> {
-  const res = await fetch(`${getBaseUrl()}/api/income/create`, {
+  const res = await fetch(`${getBaseUrl()}/api/income-records`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -17,7 +17,7 @@ export async function createIncomeRecord(data: IncomeRecordRequest): Promise<Inc
 }
 
 export async function getIncomeRecordsByUser(userId: number): Promise<IncomeRecord[]> {
-  const res = await fetch(`${getBaseUrl()}/api/income?userId=${userId}`);
+  const res = await fetch(`${getBaseUrl()}/api/income-records?userId=${userId}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch income records");
@@ -30,7 +30,7 @@ export async function updateIncomeRecord(
   id: number,
   data: IncomeRecordRequest,
 ): Promise<IncomeRecord> {
-  const res = await fetch(`${getBaseUrl()}/api/income/${id}`, {
+  const res = await fetch(`${getBaseUrl()}/api/income-records/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -44,7 +44,7 @@ export async function updateIncomeRecord(
 }
 
 export async function deleteIncomeRecord(id: number): Promise<IncomeRecord> {
-  const res = await fetch(`${getBaseUrl()}/api/income/${id}`, {
+  const res = await fetch(`${getBaseUrl()}/api/income-records/${id}`, {
     method: "DELETE",
   });
 
