@@ -157,6 +157,7 @@ export function IncomeRecordForm({
                 min="0"
                 step="any"
                 placeholder="e.g. 5000"
+                aria-label="Income Amount"
                 aria-invalid={!!errors.amount}
                 className={inputClass}
                 {...amountRest}
@@ -181,6 +182,7 @@ export function IncomeRecordForm({
               <Input
                 id="form-date"
                 type="date"
+                aria-label="Income Date"
                 aria-invalid={!!errors.incomeDate}
                 className={inputClass}
                 {...register("incomeDate", { required: "Date is required" })}
@@ -198,6 +200,7 @@ export function IncomeRecordForm({
               <Input
                 id="form-description"
                 type="text"
+                aria-label="Description"
                 placeholder="e.g. Website project, Freelance work"
                 className={inputClass}
                 {...register("description")}
