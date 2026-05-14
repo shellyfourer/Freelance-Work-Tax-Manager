@@ -57,13 +57,15 @@ export function IncomeRecordList({
   }
 
   return (
-    <div className="border-[1.5px] border-border shadow-elevation-sm rounded-card overflow-hidden">
+    <div className="border-[1.5px] border-border shadow-elevation-sm rounded-card overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-background border-b-[1.5px] border-border">
             <TableHead className={cn(tableHeadClass, "whitespace-nowrap")}>Date</TableHead>
             <TableHead className={cn(tableHeadClass, "whitespace-nowrap")}>Amount</TableHead>
-            <TableHead className={cn(tableHeadClass, "w-full")}>Description</TableHead>
+            <TableHead className={cn(tableHeadClass, "w-full hidden sm:table-cell")}>
+              Description
+            </TableHead>
             <TableHead className={cn(tableHeadClass, "whitespace-nowrap")}></TableHead>
           </TableRow>
         </TableHeader>
@@ -74,7 +76,7 @@ export function IncomeRecordList({
               <TableCell className={tableCellClass}>
                 {formatAmount(record.amount, record.currency)}
               </TableCell>
-              <TableCell className={cn(tableCellClass, "max-w-0")}>
+              <TableCell className={cn(tableCellClass, "max-w-0 hidden sm:table-cell")}>
                 <span className="block truncate">
                   {record.description ?? <span className="italic text-muted-foreground">—</span>}
                 </span>

@@ -18,12 +18,16 @@ export function IncomeSummaryCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 p-4 rounded-card border-[1.5px] border-border",
+        "flex flex-col gap-2 p-4 rounded-card border-[1.5px] border-border shadow-elevation-sm",
         empty ? "border-dashed" : "border-solid",
-        prominent && !empty ? "bg-accent" : semiProminent && !empty ? "bg-muted/70" : "bg-card",
+        prominent && !empty
+          ? "bg-accent border-accent"
+          : semiProminent && !empty
+            ? "bg-muted/70 border-muted/70"
+            : "bg-card",
       )}
     >
-      <p className="text-muted-foreground text-caption m-0">{label}</p>
+      <p className="text-primary text-caption m-0">{label}</p>
       <p
         className={cn(
           "text-h4 m-0",

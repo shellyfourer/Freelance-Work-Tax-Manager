@@ -17,7 +17,7 @@ export function AppNav() {
 
   return (
     <header className="sticky top-0 z-50 bg-sidebar border-b border-sidebar-border">
-      <div className="flex items-center justify-between max-w-300 mx-auto px-4 md:px-8 h-14">
+      <div className="flex items-center justify-between w-full max-w-300 mx-auto px-4 md:px-8 h-14">
         {/* User */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0 no-underline">
           <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-sidebar-primary border-[1.5px] border-sidebar-border">

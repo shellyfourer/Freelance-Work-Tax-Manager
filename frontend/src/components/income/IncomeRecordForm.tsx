@@ -124,7 +124,11 @@ export function IncomeRecordForm({
           </AlertDialogHeader>
           <AlertDialogFooter className="border-t-0 bg-transparent mx-0 mb-0 px-0 pb-0 pt-0">
             <AlertDialogCancel className="cursor-pointer">Keep editing</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={onClose} className="cursor-pointer">
+            <AlertDialogAction
+              variant="outline"
+              onClick={onClose}
+              className="cursor-pointer border-destructive text-destructive hover:bg-destructive/10! hover:text-destructive!"
+            >
               Discard
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -185,7 +189,14 @@ export function IncomeRecordForm({
                 aria-label="Income Date"
                 aria-invalid={!!errors.incomeDate}
                 className={inputClass}
-                {...register("incomeDate", { required: "Date is required" })}
+                {...register("incomeDate", {
+                  required: "Date is required",
+                  validate: (v) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return new Date(v) <= today || "Date cannot be in the future";
+                  },
+                })}
               />
               {errors.incomeDate && (
                 <p className="text-caption text-destructive">⚠ {errors.incomeDate.message}</p>
