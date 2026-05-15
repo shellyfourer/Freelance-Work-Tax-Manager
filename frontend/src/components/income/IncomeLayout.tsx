@@ -25,6 +25,7 @@ import {
 import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 import { calculateTax } from "@/lib/api/tax";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
+import { calculateSummary } from "@/lib/utils/income";
 
 const DEFAULT_USER_ID = 1;
 const MONTH_SHORT = [
@@ -67,13 +68,10 @@ export function IncomeLayout() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Summary calculations
-  const totalIncome = records.reduce((sum, r) => sum + r.amount, 0);
   const now = new Date();
   const currentYear = now.getFullYear();
   const elapsedMonths = Math.max(1, now.getMonth() + 1);
-  const monthlyAverage = totalIncome / elapsedMonths;
-  const projectedYearEnd = monthlyAverage * 12;
+  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateSummary(records, elapsedMonths);
   const hasRecords = records.length > 0;
   const elapsedRangeLabel = elapsedMonths === 1 ? "Jan" : `Jan–${MONTH_SHORT[elapsedMonths - 1]}`;
 
@@ -201,7 +199,7 @@ export function IncomeLayout() {
 
         {/* Load error */}
         {loadError && (
-          <div className="mb-4">
+          <div className="flex items-center gap-2 px-3 py-2 border border-dashed rounded-lg border-destructive">
             <p className="text-caption text-destructive">⚠ {loadError}</p>
           </div>
         )}
