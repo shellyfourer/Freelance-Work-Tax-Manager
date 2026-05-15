@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/income")
+@RequestMapping("/api/income-records") //has to be plural following REST principles
 
 public class IncomeRecordController {
 
@@ -22,13 +22,13 @@ public class IncomeRecordController {
         this.incomeService = incomeService;
     }
 
-    @PostMapping("/create")
+    @PostMapping //following REST principles the create endpoint is not supposed to have a sep path
     public ResponseEntity<IncomeRecordResponseDto> createIncomeRecord(
             @Valid @RequestBody IncomeRecordRequestDto incomeRecordRequestDto
     ) {
         IncomeRecord entity = IncomeRecordMapper.toEntity(incomeRecordRequestDto);
         IncomeRecord result = incomeService.createIncomeRecord(entity);
-        return ResponseEntity.ok(IncomeRecordMapper.toDto(result));
+        return ResponseEntity.status(201).body(IncomeRecordMapper.toDto(result));
     }
 
     @PutMapping("/{id}")
@@ -71,3 +71,4 @@ public class IncomeRecordController {
 
 
 }
+    
