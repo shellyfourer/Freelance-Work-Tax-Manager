@@ -30,7 +30,6 @@ describe("calculateSummary", () => {
     });
   });
 
-
   test("works correctly with a single month", () => {
     const records = [makeRecord(4000)];
     expect(calculateSummary(records, 1)).toEqual({

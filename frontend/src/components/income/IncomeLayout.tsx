@@ -71,7 +71,10 @@ export function IncomeLayout() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const elapsedMonths = Math.max(1, now.getMonth() + 1);
-  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateSummary(records, elapsedMonths);
+  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateSummary(
+    records,
+    elapsedMonths,
+  );
   const hasRecords = records.length > 0;
   const elapsedRangeLabel = elapsedMonths === 1 ? "Jan" : `Jan–${MONTH_SHORT[elapsedMonths - 1]}`;
 
