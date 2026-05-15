@@ -7,6 +7,7 @@ stages:
   - build
   - test
   - push
+  - deploy
   - sonarqube-check
 
 backend-build:
@@ -53,6 +54,15 @@ push-frontend-image:
     - echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
     - docker build --build-arg NEXT_PUBLIC_API_URL="$NEXT_PUBLIC_API_URL" -t "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest" ./frontend
     - docker push "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest"
+
+deploy-production:
+  stage: deploy
+  only:
+    - main
+  script:
+    - cd /home/ubuntu/freelance-tax-manager
+    - docker compose pull
+    - docker compose up -d
 
 sonarqube-check:
   stage: sonarqube-check
