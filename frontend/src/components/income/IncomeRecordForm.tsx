@@ -192,9 +192,11 @@ export function IncomeRecordForm({
                 {...register("incomeDate", {
                   required: "Date is required",
                   validate: (v) => {
+                    const [year, month, day] = v.split("-").map(Number);
+                    const inputDate = new Date(year, month - 1, day);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    return new Date(v) <= today || "Date cannot be in the future";
+                    return inputDate <= today || "Date cannot be in the future";
                   },
                 })}
               />
