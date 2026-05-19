@@ -47,7 +47,7 @@ class IncomeRecordControllerTest {
     }
 
     @Test
-    void createIncomeRecord_returns200_withValidInput() throws Exception {
+    void createIncomeRecord_returns201_withValidInput() throws Exception {
         when(incomeService.createIncomeRecord(any(IncomeRecord.class))).thenReturn(incomeRecord);
 
         mockMvc.perform(post("/api/income-records")
