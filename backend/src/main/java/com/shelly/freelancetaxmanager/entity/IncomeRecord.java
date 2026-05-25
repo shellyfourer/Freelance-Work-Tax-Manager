@@ -25,9 +25,6 @@ public class IncomeRecord {
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "currency", nullable = false, length = 3)
-    private String currency;
-
     @Column(name = "income_date", nullable = false)
     private LocalDate incomeDate;
 
@@ -62,9 +59,6 @@ public class IncomeRecord {
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }
-
-    public String getCurrency() { return currency; }
-    public void setCurrency(String currency) { this.currency = currency; }
 
     public LocalDate getIncomeDate() { return incomeDate; }
     public void setIncomeDate(LocalDate incomeDate) { this.incomeDate = incomeDate; }

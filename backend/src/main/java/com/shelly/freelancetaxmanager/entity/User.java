@@ -21,6 +21,9 @@ public class User {
     @Column(name = "country", nullable = false)
     private String country;
 
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -39,6 +42,9 @@ public class User {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    public String getCurrency() { return currency; }
+    public void setCurrency(String currency) { this.currency = currency; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

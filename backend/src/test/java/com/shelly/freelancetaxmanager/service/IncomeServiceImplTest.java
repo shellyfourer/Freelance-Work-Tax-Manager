@@ -45,13 +45,13 @@ public class IncomeServiceImplTest {
         user.setFullName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
+        user.setCurrency("EUR");
 
         incomeSource = new IncomeSource();
         incomeSource.setName("Default Source");
 
         incomeRecord = new IncomeRecord();
         incomeRecord.setAmount(new BigDecimal("1000.00"));
-        incomeRecord.setCurrency("EUR");
         incomeRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
     }
 
@@ -69,7 +69,6 @@ public class IncomeServiceImplTest {
         assertThat(result.getUser()).isEqualTo(user);
         assertThat(result.getIncomeSource()).isEqualTo(incomeSource);
         assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("1000.00"));
-        assertThat(result.getCurrency()).isEqualTo("EUR");
         assertThat(result.getIncomeDate()).isEqualTo(LocalDate.of(2026, 1, 1));
     }
     @Test
@@ -81,7 +80,6 @@ public class IncomeServiceImplTest {
         IncomeRecord updatedRecord = new IncomeRecord();
         updatedRecord.setIncomeId(1L);
         updatedRecord.setAmount(new BigDecimal("2000.00"));
-        updatedRecord.setCurrency("USD");
         updatedRecord.setIncomeDate(LocalDate.of(2026, 6, 1));
 
         when(incomeRecordRepository.findById(1L)).thenReturn(Optional.of(incomeRecord));
@@ -92,7 +90,6 @@ public class IncomeServiceImplTest {
 
         // Assert
         assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("2000.00"));
-        assertThat(result.getCurrency()).isEqualTo("USD");
         assertThat(result.getIncomeDate()).isEqualTo(LocalDate.of(2026, 6, 1));
     }
 
@@ -107,7 +104,6 @@ public class IncomeServiceImplTest {
 
         // Assert
         assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("1000.00"));
-        assertThat(result.getCurrency()).isEqualTo("EUR");
         assertThat(result.getIncomeDate()).isEqualTo(LocalDate.of(2026, 1, 1));
         verify(incomeRecordRepository).delete(incomeRecord);
     }

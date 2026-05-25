@@ -36,6 +36,7 @@ class IncomeRecordRepositoryTest {
         user.setFullName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
+        user.setCurrency("EUR");
         userRepository.save(user);
 
         incomeSource = new IncomeSource();
@@ -51,7 +52,6 @@ class IncomeRecordRepositoryTest {
         record.setUser(user);
         record.setIncomeSource(incomeSource);
         record.setAmount(new BigDecimal("1000.00"));
-        record.setCurrency("EUR");
         record.setIncomeDate(LocalDate.of(2026, 1, 1));
         incomeRecordRepository.save(record);
 
@@ -61,7 +61,6 @@ class IncomeRecordRepositoryTest {
         // Assert
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getAmount()).isEqualByComparingTo(new BigDecimal("1000.00"));
-        assertThat(results.get(0).getCurrency()).isEqualTo("EUR");
     }
 
     @Test
@@ -71,6 +70,7 @@ class IncomeRecordRepositoryTest {
         otherUser.setFullName("Other User");
         otherUser.setEmail("other@test.com");
         otherUser.setCountry("LT");
+        otherUser.setCurrency("EUR");
         userRepository.save(otherUser);
 
         // Act
@@ -87,7 +87,6 @@ class IncomeRecordRepositoryTest {
         record.setUser(user);
         record.setIncomeSource(incomeSource);
         record.setAmount(new BigDecimal("1000.00"));
-        record.setCurrency("EUR");
         record.setIncomeDate(LocalDate.of(2026, 1, 1));
         incomeRecordRepository.save(record);
 
@@ -96,6 +95,7 @@ class IncomeRecordRepositoryTest {
         otherUser.setFullName("Other User");
         otherUser.setEmail("other@test.com");
         otherUser.setCountry("LT");
+        otherUser.setCurrency("EUR");
         userRepository.save(otherUser);
 
         // Act — query for other user's records

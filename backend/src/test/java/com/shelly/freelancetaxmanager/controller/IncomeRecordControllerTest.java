@@ -34,6 +34,13 @@ class IncomeRecordControllerTest {
 
     @BeforeEach
     void setUp() {
+        com.shelly.freelancetaxmanager.entity.User user =
+                new com.shelly.freelancetaxmanager.entity.User();
+        user.setFullName("Default User");
+        user.setEmail("default@test.com");
+        user.setCountry("LT");
+        user.setCurrency("EUR");
+
         com.shelly.freelancetaxmanager.entity.IncomeSource incomeSource =
                 new com.shelly.freelancetaxmanager.entity.IncomeSource();
         incomeSource.setName("Default Source");
@@ -41,8 +48,8 @@ class IncomeRecordControllerTest {
         incomeRecord = new IncomeRecord();
         incomeRecord.setIncomeId(1L);
         incomeRecord.setAmount(new BigDecimal("1000.00"));
-        incomeRecord.setCurrency("EUR");
         incomeRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
+        incomeRecord.setUser(user);
         incomeRecord.setIncomeSource(incomeSource);
     }
 
@@ -55,7 +62,6 @@ class IncomeRecordControllerTest {
                 .content("""
                         {
                             "amount": 1000.00,
-                            "currency": "EUR",
                             "incomeDate": "2026-01-01"
                         }
                         """))
@@ -69,7 +75,6 @@ class IncomeRecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "currency": "EUR",
                             "incomeDate": "2026-01-01"
                         }
                         """))
@@ -83,7 +88,6 @@ class IncomeRecordControllerTest {
                 .content("""
                         {
                             "amount": -500,
-                            "currency": "EUR",
                             "incomeDate": "2026-01-01"
                         }
                         """))
