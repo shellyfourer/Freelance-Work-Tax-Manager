@@ -8,7 +8,6 @@ import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 
 const mockRequest: IncomeRecordRequest = {
   amount: 1500,
-  currency: "EUR",
   incomeDate: "2026-01-15",
   description: "Freelance project",
 };
