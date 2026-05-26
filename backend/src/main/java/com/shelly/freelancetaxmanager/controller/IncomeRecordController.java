@@ -43,11 +43,11 @@ public class IncomeRecordController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<IncomeRecordResponseDto> deleteIncomeRecord(
+    public ResponseEntity<Void> deleteIncomeRecord(
             @PathVariable Long id
     ) {
-        IncomeRecord result = incomeService.deleteIncomeRecord(id);
-        return ResponseEntity.ok(IncomeRecordMapper.toDto(result));
+        incomeService.deleteIncomeRecord(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
@@ -71,4 +71,3 @@ public class IncomeRecordController {
 
 
 }
-    

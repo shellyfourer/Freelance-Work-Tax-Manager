@@ -4,6 +4,7 @@ package com.shelly.freelancetaxmanager.service;
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 import com.shelly.freelancetaxmanager.entity.IncomeSource;
 import com.shelly.freelancetaxmanager.entity.User;
+import com.shelly.freelancetaxmanager.exception.ResourceNotFoundException;
 import com.shelly.freelancetaxmanager.repository.IncomeRecordRepository;
 import com.shelly.freelancetaxmanager.repository.IncomeSourceRepository;
 import com.shelly.freelancetaxmanager.repository.UserRepository;
@@ -94,17 +95,15 @@ public class IncomeServiceImplTest {
     }
 
     @Test
-    void deleteIncomeRecord_returnsDeletedRecord() {
+    void deleteIncomeRecord_deletesRecord() {
         // Arrange
         incomeRecord.setIncomeId(1L);
         when(incomeRecordRepository.findById(1L)).thenReturn(Optional.of(incomeRecord));
 
         // Act
-        IncomeRecord result = incomeService.deleteIncomeRecord(1L);
+        incomeService.deleteIncomeRecord(1L);
 
         // Assert
-        assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("1000.00"));
-        assertThat(result.getIncomeDate()).isEqualTo(LocalDate.of(2026, 1, 1));
         verify(incomeRecordRepository).delete(incomeRecord);
     }
 
@@ -115,10 +114,9 @@ public class IncomeServiceImplTest {
 
         // Assert
         org.junit.jupiter.api.Assertions.assertThrows(
-                RuntimeException.class,
+                ResourceNotFoundException.class,
                 () -> incomeService.deleteIncomeRecord(99L)
         );
     }
 
 }
-

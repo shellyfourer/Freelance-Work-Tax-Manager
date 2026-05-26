@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -105,12 +106,11 @@ class IncomeRecordControllerTest {
     }
 
     @Test
-    void deleteIncomeRecord_returns200_withValidId() throws Exception {
-        when(incomeService.deleteIncomeRecord(1L)).thenReturn(incomeRecord);
+    void deleteIncomeRecord_returns204_withValidId() throws Exception {
+        doNothing().when(incomeService).deleteIncomeRecord(1L);
 
         mockMvc.perform(delete("/api/income-records/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.incomeId").value(1));
+                .andExpect(status().isNoContent());
     }
 
     @Test

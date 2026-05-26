@@ -3,6 +3,7 @@ package com.shelly.freelancetaxmanager.service;
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 import com.shelly.freelancetaxmanager.entity.IncomeSource;
 import com.shelly.freelancetaxmanager.entity.User;
+import com.shelly.freelancetaxmanager.exception.ResourceNotFoundException;
 import com.shelly.freelancetaxmanager.repository.IncomeRecordRepository;
 import com.shelly.freelancetaxmanager.repository.UserRepository;
 import com.shelly.freelancetaxmanager.repository.IncomeSourceRepository;
@@ -46,7 +47,7 @@ public class IncomeServiceImpl implements IncomeService {
     @Override
     public IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord) {
         IncomeRecord income = incomeRecordRepository.findById(incomeRecord.getIncomeId())
-                .orElseThrow(() -> new RuntimeException("Income record not found with ID: " + incomeRecord.getIncomeId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + incomeRecord.getIncomeId()));
 
         income.setAmount(incomeRecord.getAmount());
         income.setIncomeDate(incomeRecord.getIncomeDate());
@@ -56,20 +57,18 @@ public class IncomeServiceImpl implements IncomeService {
     }
 
     @Override
-    public IncomeRecord deleteIncomeRecord(Long id) {
-
+    public void deleteIncomeRecord(Long id) {
         IncomeRecord income = incomeRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Income record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + id));
 
         incomeRecordRepository.delete(income);
-        return income; // because delete returns void
     }
 
     @Override
     public IncomeRecord getIncomeRecordById(Long id) {
 
         return incomeRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Income record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + id));
     }
 
     @Override

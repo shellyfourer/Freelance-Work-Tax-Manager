@@ -2,6 +2,7 @@ package com.shelly.freelancetaxmanager.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
@@ -20,10 +21,14 @@ public record TaxCalculationRequestDto(
         @NotNull @Positive BigDecimal incomeAmount,
 
         // @NotBlank = @NotNull + not empty + not only whitespace.
-        @NotBlank String period,
+        @NotBlank
+        @Pattern(regexp = "monthly|annual", message = "Period must be 'monthly' or 'annual'")
+        String period,
 
         // The country code tells the engine which calculator to use.
         //Only "LT" (Lithuania) is supported in the MVP.
-        @NotBlank String country
+        @NotBlank
+        @Pattern(regexp = "[A-Z]{2}", message = "Country must be a 2-letter ISO code")
+        String country
 
 ) {}
