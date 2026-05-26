@@ -26,6 +26,7 @@ public class DataInitializer implements ApplicationRunner {
             defaultUser.setFullName("Default User");
             defaultUser.setEmail("default@freelancetaxmanager.com");
             defaultUser.setCountry("LT");
+            defaultUser.setCurrency("EUR");
             userRepository.save(defaultUser);
 
             IncomeSource defaultIncomeSource = new IncomeSource();

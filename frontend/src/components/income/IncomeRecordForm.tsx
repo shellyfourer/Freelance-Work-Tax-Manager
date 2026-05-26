@@ -95,7 +95,6 @@ export function IncomeRecordForm({
   const onSubmit = (values: FormValues) => {
     onSave({
       amount: parseFloat(values.amount),
-      currency: "EUR",
       incomeDate: values.incomeDate,
       description: values.description || undefined,
     });

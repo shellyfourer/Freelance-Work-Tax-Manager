@@ -49,7 +49,6 @@ public class IncomeServiceImpl implements IncomeService {
                 .orElseThrow(() -> new RuntimeException("Income record not found with ID: " + incomeRecord.getIncomeId()));
 
         income.setAmount(incomeRecord.getAmount());
-        income.setCurrency(incomeRecord.getCurrency());
         income.setIncomeDate(incomeRecord.getIncomeDate());
         income.setDescription(incomeRecord.getDescription());
 

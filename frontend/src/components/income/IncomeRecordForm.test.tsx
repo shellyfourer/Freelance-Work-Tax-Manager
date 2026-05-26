@@ -87,7 +87,6 @@ describe("IncomeRecordForm", () => {
     await waitFor(() => {
       expect(onSave).toHaveBeenCalledWith({
         amount: 5000,
-        currency: "EUR",
         incomeDate: PAST,
         description: "Freelance work",
       });
@@ -107,7 +106,6 @@ describe("IncomeRecordForm", () => {
     await waitFor(() => {
       expect(onSave).toHaveBeenCalledWith({
         amount: 5000,
-        currency: "EUR",
         incomeDate: PAST,
         description: undefined,
       });

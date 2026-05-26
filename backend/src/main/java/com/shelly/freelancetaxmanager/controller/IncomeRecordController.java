@@ -22,7 +22,7 @@ public class IncomeRecordController {
         this.incomeService = incomeService;
     }
 
-    @PostMapping //following REST principles the create endpoint is not supposed to have a sep path
+    @PostMapping //following REST principles, the creation endpoint is not supposed to have a sep path
     public ResponseEntity<IncomeRecordResponseDto> createIncomeRecord(
             @Valid @RequestBody IncomeRecordRequestDto incomeRecordRequestDto
     ) {

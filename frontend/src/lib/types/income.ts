@@ -1,7 +1,6 @@
 // Mirrors backend IncomeRecordRequestDto
 export interface IncomeRecordRequest {
   amount: number;
-  currency: string;
   incomeDate: string;
   description?: string;
 }

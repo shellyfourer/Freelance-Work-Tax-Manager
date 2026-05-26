@@ -22,7 +22,6 @@ public class IncomeRecordMapper {
         IncomeRecord income = new IncomeRecord();
 
         income.setAmount(dto.amount());
-        income.setCurrency(dto.currency());
         income.setIncomeDate(dto.incomeDate());
         income.setDescription(dto.description());
 
@@ -36,7 +35,7 @@ public class IncomeRecordMapper {
             entity.getIncomeId(),
             entity.getIncomeSource().getName(),
             entity.getAmount(),
-            entity.getCurrency(),
+            entity.getUser().getCurrency(),
             entity.getIncomeDate(),
             entity.getDescription(),
             entity.getCreatedAt(),
