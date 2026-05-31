@@ -37,7 +37,7 @@ class IncomeRecordControllerTest {
     void setUp() {
         com.shelly.freelancetaxmanager.entity.User user =
                 new com.shelly.freelancetaxmanager.entity.User();
-        user.setFullName("Default User");
+        user.setName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
         user.setCurrency("EUR");

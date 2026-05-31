@@ -12,16 +12,19 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "google_id", unique = true)
+    private String googleId;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "country", nullable = false)
+    @Column(name = "country")
     private String country;
 
-    @Column(name = "currency", nullable = false, length = 3)
+    @Column(name = "currency", length = 3)
     private String currency;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -34,8 +37,11 @@ public class User {
 
     public Long getUserId() { return userId; }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getGoogleId() { return googleId; }
+    public void setGoogleId(String googleId) { this.googleId = googleId; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

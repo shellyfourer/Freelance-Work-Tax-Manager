@@ -33,7 +33,7 @@ class IncomeRecordRepositoryTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        user.setFullName("Default User");
+        user.setName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
         user.setCurrency("EUR");
@@ -67,7 +67,7 @@ class IncomeRecordRepositoryTest {
     void findByUserUserId_returnsEmptyList_whenUserHasNoRecords() {
         // Arrange — create a second user with no records
         User otherUser = new User();
-        otherUser.setFullName("Other User");
+        otherUser.setName("Other User");
         otherUser.setEmail("other@test.com");
         otherUser.setCountry("LT");
         otherUser.setCurrency("EUR");
@@ -92,7 +92,7 @@ class IncomeRecordRepositoryTest {
 
         // create second user
         User otherUser = new User();
-        otherUser.setFullName("Other User");
+        otherUser.setName("Other User");
         otherUser.setEmail("other@test.com");
         otherUser.setCountry("LT");
         otherUser.setCurrency("EUR");

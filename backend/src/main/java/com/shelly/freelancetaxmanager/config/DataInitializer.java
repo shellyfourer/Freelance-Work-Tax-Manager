@@ -23,7 +23,7 @@ public class DataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (userRepository.count() == 0) {
             User defaultUser = new User();
-            defaultUser.setFullName("Default User");
+            defaultUser.setName("Default User");
             defaultUser.setEmail("default@freelancetaxmanager.com");
             defaultUser.setCountry("LT");
             defaultUser.setCurrency("EUR");

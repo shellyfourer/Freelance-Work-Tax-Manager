@@ -41,7 +41,7 @@ public class IncomeRecordServiceImplTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        user.setFullName("Default User");
+        user.setName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
         user.setCurrency("EUR");
