@@ -1,6 +1,8 @@
 package com.shelly.freelancetaxmanager.entity;
 
+import com.shelly.freelancetaxmanager.enums.PaymentType;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,12 +24,29 @@ public class IncomeSource {
     @Column(name = "description")
     private String description;
 
+    @Enumerated(EnumType.STRING)
+
+    @Column(name = "payment_type", nullable = false)
+    private PaymentType paymentType;
+
+    @Column(name = "hourly_rate")
+    private BigDecimal hourlyRate;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     public Long getSourceId() { return sourceId; }
@@ -41,5 +60,13 @@ public class IncomeSource {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public PaymentType getPaymentType() { return paymentType; }
+    public void setPaymentType(PaymentType paymentType) { this.paymentType = paymentType; }
+
+    public BigDecimal getHourlyRate() { return hourlyRate; }
+    public void setHourlyRate(BigDecimal hourlyRate) { this.hourlyRate = hourlyRate; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }
