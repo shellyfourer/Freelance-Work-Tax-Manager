@@ -41,6 +41,8 @@ class IncomeRecordRepositoryTest {
 
         incomeSource = new IncomeSource();
         incomeSource.setName("Default Source");
+        incomeSource.setPaymentType(com.shelly.freelancetaxmanager.enums.PaymentType.HOURLY);
+        incomeSource.setHourlyRate(new BigDecimal("50.00"));
         incomeSource.setUser(user);
         incomeSourceRepository.save(incomeSource);
     }
