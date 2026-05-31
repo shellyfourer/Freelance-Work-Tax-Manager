@@ -16,8 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.verify;
 
-import org.mockito.Mockito;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,12 +27,12 @@ import static org.mockito.Mockito.when;
 //here we need to write mocks, because our service has dependencies, our 3 repositories
 
 @ExtendWith(MockitoExtension.class)
-public class IncomeServiceImplTest {
+public class IncomeRecordServiceImplTest {
 
     @Mock private IncomeRecordRepository incomeRecordRepository;
     @Mock private IncomeSourceRepository incomeSourceRepository;
     @Mock private UserRepository userRepository;
-    @InjectMocks private IncomeServiceImpl incomeService;
+    @InjectMocks private IncomeRecordServiceImpl incomeService;
 
     private User user;
     private IncomeSource incomeSource;

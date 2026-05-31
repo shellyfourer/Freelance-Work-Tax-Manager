@@ -3,7 +3,7 @@ import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 
 import java.util.List;
 
-public interface IncomeService {
+public interface IncomeRecordService {
     IncomeRecord createIncomeRecord(IncomeRecord incomeRecord);
     IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord);
     void deleteIncomeRecord(Long id);

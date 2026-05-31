@@ -1,7 +1,7 @@
 package com.shelly.freelancetaxmanager.controller;
 
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
-import com.shelly.freelancetaxmanager.service.IncomeService;
+import com.shelly.freelancetaxmanager.service.IncomeRecordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ class IncomeRecordControllerTest {
 
     //mocks the service, does not start the real service, but allows us to define its behavior in tests
     @MockitoBean
-    private IncomeService incomeService;
+    private IncomeRecordService incomeRecordService;
 
     private IncomeRecord incomeRecord;
 
@@ -56,7 +56,7 @@ class IncomeRecordControllerTest {
 
     @Test
     void createIncomeRecord_returns201_withValidInput() throws Exception {
-        when(incomeService.createIncomeRecord(any(IncomeRecord.class))).thenReturn(incomeRecord);
+        when(incomeRecordService.createIncomeRecord(any(IncomeRecord.class))).thenReturn(incomeRecord);
 
         mockMvc.perform(post("/api/income-records")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ class IncomeRecordControllerTest {
 
     @Test
     void getIncomeRecordById_returns200_withValidId() throws Exception {
-        when(incomeService.getIncomeRecordById(1L)).thenReturn(incomeRecord);
+        when(incomeRecordService.getIncomeRecordById(1L)).thenReturn(incomeRecord);
 
         mockMvc.perform(get("/api/income-records/1"))
                 .andExpect(status().isOk())
@@ -107,7 +107,7 @@ class IncomeRecordControllerTest {
 
     @Test
     void deleteIncomeRecord_returns204_withValidId() throws Exception {
-        doNothing().when(incomeService).deleteIncomeRecord(1L);
+        doNothing().when(incomeRecordService).deleteIncomeRecord(1L);
 
         mockMvc.perform(delete("/api/income-records/1"))
                 .andExpect(status().isNoContent());
@@ -115,7 +115,7 @@ class IncomeRecordControllerTest {
 
     @Test
     void getIncomeRecordsByUser_returns200_withValidUserId() throws Exception {
-        when(incomeService.getIncomeRecordsByUser(1L)).thenReturn(List.of(incomeRecord));
+        when(incomeRecordService.getIncomeRecordsByUser(1L)).thenReturn(List.of(incomeRecord));
 
         mockMvc.perform(get("/api/income-records").param("userId", "1"))
                 .andExpect(status().isOk())

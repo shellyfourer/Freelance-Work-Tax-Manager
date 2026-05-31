@@ -13,13 +13,13 @@ import java.util.List;
 
 
 @Service
-public class IncomeServiceImpl implements IncomeService {
+public class IncomeRecordServiceImpl implements IncomeRecordService {
 
     private final IncomeRecordRepository incomeRecordRepository;
     private final IncomeSourceRepository incomeSourceRepository;
     private final UserRepository userRepository;
 
-    public IncomeServiceImpl(IncomeRecordRepository incomeRecordRepository, IncomeSourceRepository incomeSourceRepository, UserRepository userRepository) {
+    public IncomeRecordServiceImpl(IncomeRecordRepository incomeRecordRepository, IncomeSourceRepository incomeSourceRepository, UserRepository userRepository) {
         this.incomeRecordRepository = incomeRecordRepository;
         this.incomeSourceRepository = incomeSourceRepository;
         this.userRepository = userRepository;
