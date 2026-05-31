@@ -49,6 +49,7 @@ public class IncomeSource {
         updatedAt = LocalDateTime.now();
     }
 
+    public void setSourceId(Long id) { this.sourceId = id;}
     public Long getSourceId() { return sourceId; }
 
     public User getUser() { return user; }
