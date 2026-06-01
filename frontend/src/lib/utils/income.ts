@@ -19,7 +19,7 @@ export interface IncomeSummary {
   projectedYearEnd: number;
 }
 
-export function calculateSummary(records: IncomeRecord[], elapsedMonths: number): IncomeSummary {
+export function calculateIncomeSummary(records: IncomeRecord[], elapsedMonths: number): IncomeSummary {
   const totalIncome = records.reduce((sum, r) => sum + r.amount, 0);
   const monthlyAverage = elapsedMonths > 0 ? totalIncome / elapsedMonths : 0;
   const projectedYearEnd = monthlyAverage * 12;

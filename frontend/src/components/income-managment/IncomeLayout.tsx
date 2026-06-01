@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { IncomeSummaryCard } from "@/components/income-managment/IncomeSummaryCard";
+import { SummaryCard } from "@/components/shared/SummaryCard";
 import { IncomeRecordList } from "@/components/income-managment/IncomeRecordList";
 import { IncomeRecordForm } from "@/components/income-managment/IncomeRecordForm";
 import {
@@ -25,7 +25,7 @@ import {
 import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 import { calculateTax } from "@/lib/api/tax";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
-import { calculateSummary } from "@/lib/utils/income";
+import { calculateIncomeSummary } from "@/lib/utils/income";
 
 const DEFAULT_USER_ID = 1;
 const MONTH_SHORT = [
@@ -71,7 +71,7 @@ export function IncomeLayout() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const elapsedMonths = Math.max(1, now.getMonth() + 1);
-  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateSummary(
+  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateIncomeSummary(
     records,
     elapsedMonths,
   );
@@ -214,12 +214,12 @@ export function IncomeLayout() {
             <span className="text-muted-foreground italic text-caption">Tracked factual data</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <IncomeSummaryCard
+            <SummaryCard
               label="Total Income So Far"
               value={hasRecords ? formatMoney(totalIncome) : "—"}
               empty={!hasRecords}
             />
-            <IncomeSummaryCard
+            <SummaryCard
               label="Average Monthly Income"
               value={hasRecords ? formatMoney(monthlyAverage) : "—"}
               empty={!hasRecords}
@@ -233,19 +233,19 @@ export function IncomeLayout() {
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <IncomeSummaryCard
+            <SummaryCard
               label="Estimated Year-End Income"
               value={hasRecords ? formatMoney(projectedYearEnd) : "—"}
               empty={!hasRecords}
               semiProminent={true}
             />
-            <IncomeSummaryCard
+            <SummaryCard
               label="Est. Tax to Set Aside"
               value={taxResult ? formatMoney(taxResult.totalTax) : "—"}
               semiProminent={true}
               empty={!taxResult}
             />
-            <IncomeSummaryCard
+            <SummaryCard
               label="Est. Net Income"
               value={taxResult ? formatMoney(taxResult.netIncome) : "—"}
               prominent={true}

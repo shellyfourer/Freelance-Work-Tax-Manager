@@ -1,3 +1,5 @@
+import { ClientsLayout } from "@/components/client-managment/ClientsLayout";
+
 export default function ClientsPage() {
-  return null;
+  return <ClientsLayout />;
 }

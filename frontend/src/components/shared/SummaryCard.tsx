@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface IncomeSummaryCardProps {
+interface SummaryCardProps {
   label: string;
   value: string;
   prominent?: boolean;
@@ -8,13 +8,13 @@ interface IncomeSummaryCardProps {
   empty?: boolean;
 }
 
-export function IncomeSummaryCard({
+export function SummaryCard({
   label,
   value,
   prominent = false,
   semiProminent = false,
   empty = false,
-}: IncomeSummaryCardProps) {
+}: SummaryCardProps) {
   return (
     <div
       className={cn(
