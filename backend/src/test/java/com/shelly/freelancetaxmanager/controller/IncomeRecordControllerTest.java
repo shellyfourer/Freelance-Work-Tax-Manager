@@ -123,7 +123,6 @@ class IncomeRecordControllerTest {
         mockMvc.perform(get("/api/income-records/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incomeId").value(1))
-                .andExpect(jsonPath("$.currency").value("EUR"))
                 .andExpect(jsonPath("$.hoursWorked").value(10.00));
     }
 

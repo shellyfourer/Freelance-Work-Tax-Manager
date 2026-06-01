@@ -33,7 +33,6 @@ public class IncomeRecordMapper {
             entity.getIncomeSource().getName(),
             entity.getAmount(),
             entity.getHoursWorked(),
-            entity.getUser().getCurrency(),
             entity.getIncomeDate(),
             entity.getDescription(),
             entity.getIncomeSource().getPaymentType(),

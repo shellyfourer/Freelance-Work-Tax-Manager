@@ -12,7 +12,6 @@ public record IncomeRecordResponseDto(
     String incomeSourceName,
     BigDecimal amount,
     BigDecimal hoursWorked,
-    String currency,
     LocalDate incomeDate,
     String description,
     PaymentType paymentType,
