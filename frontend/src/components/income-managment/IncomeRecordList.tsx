@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IncomeRecordEmptyState } from "@/components/income/IncomeRecordEmptyState";
+import { IncomeRecordEmptyState } from "@/components/income-managment/IncomeRecordEmptyState";
 
 const tableHeadClass = "px-4 py-3 text-caption text-muted-foreground font-normal";
 const tableCellClass = "px-4 py-3 text-base text-foreground";
@@ -32,9 +32,8 @@ function formatDate(isoDate: string): string {
   });
 }
 
-function formatAmount(amount: number, currency: string): string {
-  const symbol = currency === "EUR" ? "€" : currency;
-  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function formatAmount(amount: number): string {
+  return `€${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function IncomeRecordList({
@@ -74,7 +73,7 @@ export function IncomeRecordList({
             <TableRow key={record.incomeId}>
               <TableCell className={tableCellClass}>{formatDate(record.incomeDate)}</TableCell>
               <TableCell className={tableCellClass}>
-                {formatAmount(record.amount, record.currency)}
+                {formatAmount(record.amount)}
               </TableCell>
               <TableCell className={cn(tableCellClass, "max-w-0 hidden sm:table-cell")}>
                 <span className="block truncate">

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TaxCalculatorForm, type TaxFormValues } from "@/components/calculator/TaxCalculatorForm";
-import { TaxCalculatorResults } from "@/components/calculator/TaxCalculatorResults";
+import { TaxCalculatorForm, type TaxFormValues } from "@/components/tax-calculator/TaxCalculatorForm";
+import { TaxCalculatorResults } from "@/components/tax-calculator/TaxCalculatorResults";
 import { calculateTax } from "@/lib/api/tax";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 

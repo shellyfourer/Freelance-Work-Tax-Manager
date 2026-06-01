@@ -127,11 +127,14 @@ describe("IncomeRecordForm", () => {
   test("pre-fills form fields when editingRecord is provided", () => {
     const editingRecord = {
       incomeId: 1,
+      incomeSourceId: 1,
       incomeSourceName: "Freelance",
       amount: 3000,
-      currency: "EUR",
+      hoursWorked: null,
       incomeDate: PAST,
       description: "Consulting",
+      paymentType: "FIXED" as const,
+      hourlyRate: null,
       createdAt: "2024-01-15T00:00:00Z",
       updatedAt: "2024-01-15T00:00:00Z",
     };

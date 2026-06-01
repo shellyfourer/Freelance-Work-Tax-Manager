@@ -5,8 +5,11 @@ import {
   deleteIncomeRecord,
 } from "./income";
 import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
+import type { PaymentType } from "@/lib/types/client";
 
 const mockRequest: IncomeRecordRequest = {
+  incomeSourceId: 1,
+  hoursWorked: 0,
   amount: 1500,
   incomeDate: "2026-01-15",
   description: "Freelance project",
@@ -14,11 +17,14 @@ const mockRequest: IncomeRecordRequest = {
 
 const mockRecord: IncomeRecord = {
   incomeId: 1,
+  incomeSourceId: 1,
   incomeSourceName: "Default Source",
   amount: 1500,
-  currency: "EUR",
+  hoursWorked: null,
   incomeDate: "2026-01-15",
   description: "Freelance project",
+  paymentType: "FIXED",
+  hourlyRate: null,
   createdAt: "2026-01-15T10:00:00",
   updatedAt: "2026-01-15T10:00:00",
 };

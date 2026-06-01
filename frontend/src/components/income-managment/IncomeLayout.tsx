@@ -13,9 +13,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { IncomeSummaryCard } from "@/components/income/IncomeSummaryCard";
-import { IncomeRecordList } from "@/components/income/IncomeRecordList";
-import { IncomeRecordForm } from "@/components/income/IncomeRecordForm";
+import { IncomeSummaryCard } from "@/components/income-managment/IncomeSummaryCard";
+import { IncomeRecordList } from "@/components/income-managment/IncomeRecordList";
+import { IncomeRecordForm } from "@/components/income-managment/IncomeRecordForm";
 import {
   createIncomeRecord,
   getIncomeRecordsByUser,
