@@ -26,6 +26,12 @@ export function IncomeRecordList({
       headerClassName: "whitespace-nowrap",
     },
     {
+      key: "client",
+      header: "Client",
+      cell: (r) => r.incomeSourceName,
+      headerClassName: "whitespace-nowrap",
+    },
+    {
       key: "amount",
       header: "Amount",
       cell: (r) => formatAmount(r.amount),

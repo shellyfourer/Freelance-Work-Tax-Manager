@@ -26,6 +26,8 @@ import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 import { calculateTax } from "@/lib/api/tax";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 import { calculateIncomeSummary } from "@/lib/utils/income";
+import { getIncomeSourcesByUser } from "@/lib/api/client";
+import type { IncomeSource } from "@/lib/types/client";
 
 const DEFAULT_USER_ID = 1;
 const MONTH_SHORT = [
@@ -49,6 +51,7 @@ function formatMoney(amount: number): string {
 
 export function IncomeLayout() {
   const [records, setRecords] = useState<IncomeRecord[]>([]);
+  const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -62,8 +65,11 @@ export function IncomeLayout() {
   const [taxResult, setTaxResult] = useState<TaxCalculatorResult | null>(null);
 
   useEffect(() => {
-    getIncomeRecordsByUser(DEFAULT_USER_ID)
-      .then(setRecords)
+    Promise.all([getIncomeRecordsByUser(DEFAULT_USER_ID), getIncomeSourcesByUser(DEFAULT_USER_ID)])
+      .then(([records, sources]) => {
+        setRecords(records);
+        setIncomeSources(sources);
+      })
       .catch(() => setLoadError("Failed to load income records. Please try again."))
       .finally(() => setIsLoading(false));
   }, []);
@@ -175,6 +181,7 @@ export function IncomeLayout() {
       <IncomeRecordForm
         open={showForm}
         editingRecord={editingRecord}
+        incomeSources={incomeSources}
         isSubmitting={isSubmitting}
         apiError={formError}
         onSave={handleSave}
@@ -237,12 +244,10 @@ export function IncomeLayout() {
               label="Estimated Year-End Income"
               value={hasRecords ? formatMoney(projectedYearEnd) : "—"}
               empty={!hasRecords}
-              semiProminent={true}
             />
             <SummaryCard
               label="Est. Tax to Set Aside"
               value={taxResult ? formatMoney(taxResult.totalTax) : "—"}
-              semiProminent={true}
               empty={!taxResult}
             />
             <SummaryCard

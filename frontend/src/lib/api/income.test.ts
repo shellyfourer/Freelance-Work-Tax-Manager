@@ -5,7 +5,6 @@ import {
   deleteIncomeRecord,
 } from "./income";
 import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
-import type { PaymentType } from "@/lib/types/client";
 
 const mockRequest: IncomeRecordRequest = {
   incomeSourceId: 1,

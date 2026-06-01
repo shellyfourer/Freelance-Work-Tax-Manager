@@ -23,7 +23,7 @@ const editingSource: IncomeSource = {
 };
 
 async function selectPaymentType(label: string) {
-  fireEvent.click(screen.getByRole("combobox"));
+  fireEvent.focus(screen.getByLabelText(/payment type/i));
   await waitFor(() => screen.getByText(label));
   fireEvent.click(screen.getByText(label));
 }
@@ -33,7 +33,7 @@ describe("IncomeSourceForm", () => {
     render(<IncomeSourceForm {...defaultProps} />);
 
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByLabelText(/payment type/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
@@ -160,9 +160,7 @@ describe("IncomeSourceForm", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ description: undefined }),
-      );
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ description: undefined }));
     });
   });
 
@@ -183,7 +181,7 @@ describe("IncomeSourceForm", () => {
 
     expect(screen.getByLabelText(/name/i)).toHaveValue("Acme Corp");
     expect(screen.getByLabelText(/description/i)).toHaveValue("Design work");
-    expect(screen.getByRole("combobox")).toHaveTextContent(/fixed price/i);
+    expect(screen.getByLabelText(/payment type/i)).toHaveValue("Fixed price");
   });
 
   test("pre-fills hourly rate when editing an HOURLY source", () => {

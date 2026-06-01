@@ -36,11 +36,7 @@ describe("calculateClientSummary", () => {
   });
 
   test("counts hourly and fixed clients correctly", () => {
-    const sources = [
-      makeSource("HOURLY", 50),
-      makeSource("HOURLY", 100),
-      makeSource("FIXED"),
-    ];
+    const sources = [makeSource("HOURLY", 50), makeSource("HOURLY", 100), makeSource("FIXED")];
     const result = calculateClientSummary(sources);
     expect(result.totalClients).toBe(3);
     expect(result.hourlyClients).toBe(2);

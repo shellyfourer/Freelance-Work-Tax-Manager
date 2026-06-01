@@ -1,21 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { FormModal } from "@/components/shared/FormModal";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { IncomeSource, IncomeSourceRequest, PaymentType } from "@/lib/types/client";
 
@@ -51,12 +42,13 @@ export function IncomeSourceForm({
   onClose,
 }: IncomeSourceFormProps) {
   const [paymentTypeOpen, setPaymentTypeOpen] = useState(false);
+  const [paymentQuery, setPaymentQuery] = useState("");
+  const [paymentFocusedIndex, setPaymentFocusedIndex] = useState(-1);
 
   const {
     register,
     handleSubmit,
     reset,
-    watch,
     control,
     getValues,
     formState: { errors, isDirty },
@@ -64,7 +56,7 @@ export function IncomeSourceForm({
     defaultValues: { name: "", paymentType: "", hourlyRate: "", description: "" },
   });
 
-  const paymentType = watch("paymentType");
+  const paymentType = useWatch({ control, name: "paymentType", defaultValue: "" });
   const isHourly = paymentType === "HOURLY";
 
   useEffect(() => {
@@ -81,6 +73,14 @@ export function IncomeSourceForm({
       }
     }
   }, [open, editingSource, reset]);
+
+  // When open: show what's typed (filter as user types). When closed: show selected label.
+  const selectedLabel = PAYMENT_TYPES.find((t) => t.value === paymentType)?.label ?? "";
+  const paymentDisplayValue = paymentTypeOpen ? paymentQuery : selectedLabel;
+
+  const filteredTypes = PAYMENT_TYPES.filter((t) =>
+    t.label.toLowerCase().includes(paymentQuery.toLowerCase()),
+  );
 
   const onSubmit = (values: FormValues) => {
     onSave({
@@ -124,7 +124,9 @@ export function IncomeSourceForm({
       {/* Payment type */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label className="text-caption">Payment Type</Label>
+          <Label htmlFor="form-payment-type" className="text-caption">
+            Payment Type
+          </Label>
           <span className="text-muted-foreground text-caption">Required</span>
         </div>
         <Controller
@@ -133,47 +135,90 @@ export function IncomeSourceForm({
           rules={{ required: "Please select a payment type" }}
           render={({ field }) => (
             <Popover open={paymentTypeOpen} onOpenChange={setPaymentTypeOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={paymentTypeOpen}
+              <PopoverAnchor asChild>
+                <Input
+                  id="form-payment-type"
+                  aria-label="Payment Type"
                   aria-invalid={!!errors.paymentType}
-                  className={cn(inputClass, "w-full justify-between font-normal")}
+                  autoComplete="off"
+                  placeholder="Select payment type…"
+                  className={inputClass}
+                  value={paymentDisplayValue}
+                  onFocus={() => {
+                    setPaymentQuery("");
+                    setPaymentTypeOpen(true);
+                    setPaymentFocusedIndex(-1);
+                  }}
+                  onChange={(e) => {
+                    setPaymentQuery(e.target.value);
+                    setPaymentTypeOpen(true);
+                    setPaymentFocusedIndex(-1);
+                    if (field.value) field.onChange("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      if (!paymentTypeOpen) setPaymentTypeOpen(true);
+                      setPaymentFocusedIndex((prev) =>
+                        Math.min(prev + 1, filteredTypes.length - 1),
+                      );
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setPaymentFocusedIndex((prev) => Math.max(prev - 1, 0));
+                    } else if (e.key === "Enter" && paymentTypeOpen) {
+                      e.preventDefault();
+                      if (paymentFocusedIndex >= 0 && paymentFocusedIndex < filteredTypes.length) {
+                        const type = filteredTypes[paymentFocusedIndex];
+                        field.onChange(type.value);
+                        setPaymentQuery("");
+                        setPaymentTypeOpen(false);
+                        setPaymentFocusedIndex(-1);
+                      }
+                    } else if (e.key === "Escape") {
+                      setPaymentQuery("");
+                      setPaymentTypeOpen(false);
+                      setPaymentFocusedIndex(-1);
+                    }
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setPaymentQuery("");
+                      setPaymentTypeOpen(false);
+                      setPaymentFocusedIndex(-1);
+                    }, 150);
+                  }}
+                />
+              </PopoverAnchor>
+              {paymentTypeOpen && filteredTypes.length > 0 && (
+                <PopoverContent
+                  align="start"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  className="p-1 w-[var(--radix-popover-trigger-width)]"
                 >
-                  {field.value
-                    ? PAYMENT_TYPES.find((t) => t.value === field.value)?.label
-                    : "Select payment type…"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandList>
-                    <CommandEmpty>No type found.</CommandEmpty>
-                    <CommandGroup>
-                      {PAYMENT_TYPES.map((type) => (
-                        <CommandItem
-                          key={type.value}
-                          value={type.value}
-                          onSelect={(val) => {
-                            field.onChange(val.toUpperCase() as PaymentType);
-                            setPaymentTypeOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              field.value === type.value ? "opacity-100" : "opacity-0",
-                            )}
-                          />
-                          {type.label}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
+                  {filteredTypes.map((type, index) => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
+                        field.value === type.value && "font-medium",
+                        (paymentFocusedIndex !== -1
+                          ? paymentFocusedIndex === index
+                          : field.value === type.value) && "bg-accent",
+                      )}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        field.onChange(type.value);
+                        setPaymentQuery("");
+                        setPaymentTypeOpen(false);
+                        setPaymentFocusedIndex(-1);
+                      }}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </PopoverContent>
+              )}
             </Popover>
           )}
         />
