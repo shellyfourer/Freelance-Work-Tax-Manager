@@ -36,7 +36,10 @@ export async function getIncomeSourceById(id: number): Promise<IncomeSource> {
   return res.json();
 }
 
-export async function updateIncomeSource(id: number, data: IncomeSourceRequest): Promise<IncomeSource> {
+export async function updateIncomeSource(
+  id: number,
+  data: IncomeSourceRequest,
+): Promise<IncomeSource> {
   const res = await fetch(`${getBaseUrl()}/api/clients/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

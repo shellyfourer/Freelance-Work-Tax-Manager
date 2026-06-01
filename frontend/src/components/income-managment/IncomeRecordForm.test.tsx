@@ -89,6 +89,7 @@ describe("IncomeRecordForm", () => {
         amount: 5000,
         incomeDate: PAST,
         description: "Freelance work",
+        incomeSourceId: 1,
       });
     });
   });
@@ -108,6 +109,7 @@ describe("IncomeRecordForm", () => {
         amount: 5000,
         incomeDate: PAST,
         description: undefined,
+        incomeSourceId: 1,
       });
     });
   });
