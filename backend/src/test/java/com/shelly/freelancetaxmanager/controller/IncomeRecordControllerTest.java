@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -58,7 +59,7 @@ class IncomeRecordControllerTest {
 
     @Test
     void createIncomeRecord_returns201_withValidInput() throws Exception {
-        when(incomeRecordService.createIncomeRecord(any(IncomeRecord.class))).thenReturn(incomeRecord);
+        when(incomeRecordService.createIncomeRecord(any(IncomeRecord.class), anyLong())).thenReturn(incomeRecord);
 
         mockMvc.perform(post("/api/income-records")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +67,8 @@ class IncomeRecordControllerTest {
                         {
                             "amount": 500.00,
                             "incomeDate": "2026-01-01",
-                            "hoursWorked": 10.00
+                            "hoursWorked": 10.00,
+                            "incomeSourceId": 1
                         }
                         """))
                 .andExpect(status().is(201))
@@ -80,7 +82,8 @@ class IncomeRecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "incomeDate": "2026-01-01"
+                            "incomeDate": "2026-01-01",
+                            "incomeSourceId": 1
                         }
                         """))
                 .andExpect(status().isBadRequest());
@@ -93,6 +96,20 @@ class IncomeRecordControllerTest {
                 .content("""
                         {
                             "amount": -500,
+                            "incomeDate": "2026-01-01",
+                            "incomeSourceId": 1
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createIncomeRecord_returns400_whenIncomeSourceIdIsNull() throws Exception {
+        mockMvc.perform(post("/api/income-records")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "amount": 500.00,
                             "incomeDate": "2026-01-01"
                         }
                         """))

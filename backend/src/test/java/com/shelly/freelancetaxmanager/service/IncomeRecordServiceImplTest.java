@@ -38,6 +38,9 @@ public class IncomeRecordServiceImplTest {
     private IncomeSource fixedSource;
     private IncomeRecord incomeRecord;
 
+    private static final Long HOURLY_SOURCE_ID = 1L;
+    private static final Long FIXED_SOURCE_ID = 2L;
+
     @BeforeEach
     void setUp() {
         user = new User();
@@ -65,11 +68,11 @@ public class IncomeRecordServiceImplTest {
     void createIncomeRecord_savesRecordWithDefaultUserAndSource() {
         // Arrange
         when(userRepository.findAll()).thenReturn(List.of(user));
-        when(incomeSourceRepository.findAll()).thenReturn(List.of(hourlySource));
+        when(incomeSourceRepository.findById(HOURLY_SOURCE_ID)).thenReturn(Optional.of(hourlySource));
         when(incomeRecordRepository.save(incomeRecord)).thenReturn(incomeRecord);
 
         // Act
-        IncomeRecord result = incomeService.createIncomeRecord(incomeRecord);
+        IncomeRecord result = incomeService.createIncomeRecord(incomeRecord, HOURLY_SOURCE_ID);
 
         // Assert
         assertThat(result.getUser()).isEqualTo(user);
@@ -84,12 +87,12 @@ public class IncomeRecordServiceImplTest {
         // Arrange
         incomeRecord.setHoursWorked(null);
         when(userRepository.findAll()).thenReturn(List.of(user));
-        when(incomeSourceRepository.findAll()).thenReturn(List.of(hourlySource));
+        when(incomeSourceRepository.findById(HOURLY_SOURCE_ID)).thenReturn(Optional.of(hourlySource));
 
         // Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> incomeService.createIncomeRecord(incomeRecord)
+                () -> incomeService.createIncomeRecord(incomeRecord, HOURLY_SOURCE_ID)
         );
     }
 
@@ -98,12 +101,12 @@ public class IncomeRecordServiceImplTest {
         // Arrange — 10h × €50 = €500, but amount is €999
         incomeRecord.setAmount(new BigDecimal("999.00"));
         when(userRepository.findAll()).thenReturn(List.of(user));
-        when(incomeSourceRepository.findAll()).thenReturn(List.of(hourlySource));
+        when(incomeSourceRepository.findById(HOURLY_SOURCE_ID)).thenReturn(Optional.of(hourlySource));
 
         // Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> incomeService.createIncomeRecord(incomeRecord)
+                () -> incomeService.createIncomeRecord(incomeRecord, HOURLY_SOURCE_ID)
         );
     }
 
@@ -112,11 +115,11 @@ public class IncomeRecordServiceImplTest {
         // Arrange — client sent hoursWorked but source is FIXED
         incomeRecord.setHoursWorked(new BigDecimal("10.00"));
         when(userRepository.findAll()).thenReturn(List.of(user));
-        when(incomeSourceRepository.findAll()).thenReturn(List.of(fixedSource));
+        when(incomeSourceRepository.findById(FIXED_SOURCE_ID)).thenReturn(Optional.of(fixedSource));
         when(incomeRecordRepository.save(incomeRecord)).thenReturn(incomeRecord);
 
         // Act
-        IncomeRecord result = incomeService.createIncomeRecord(incomeRecord);
+        IncomeRecord result = incomeService.createIncomeRecord(incomeRecord, FIXED_SOURCE_ID);
 
         // Assert
         assertThat(result.getHoursWorked()).isNull();
@@ -126,7 +129,6 @@ public class IncomeRecordServiceImplTest {
     void updateIncomeRecord_overwritesOldValuesWithNewValues() {
         // Arrange
         incomeRecord.setIncomeId(1L);
-        incomeRecord.setIncomeSource(hourlySource);
 
         IncomeRecord updatedRecord = new IncomeRecord();
         updatedRecord.setIncomeId(1L);
@@ -135,10 +137,11 @@ public class IncomeRecordServiceImplTest {
         updatedRecord.setIncomeDate(LocalDate.of(2026, 6, 1));
 
         when(incomeRecordRepository.findById(1L)).thenReturn(Optional.of(incomeRecord));
+        when(incomeSourceRepository.findById(HOURLY_SOURCE_ID)).thenReturn(Optional.of(hourlySource));
         when(incomeRecordRepository.save(incomeRecord)).thenReturn(incomeRecord);
 
         // Act
-        IncomeRecord result = incomeService.updateIncomeRecord(updatedRecord);
+        IncomeRecord result = incomeService.updateIncomeRecord(updatedRecord, HOURLY_SOURCE_ID);
 
         // Assert
         assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("100.00"));
@@ -150,7 +153,6 @@ public class IncomeRecordServiceImplTest {
     void updateIncomeRecord_throwsWhenHoursWorkedMissingForHourlySource() {
         // Arrange
         incomeRecord.setIncomeId(1L);
-        incomeRecord.setIncomeSource(hourlySource);
 
         IncomeRecord updatedRecord = new IncomeRecord();
         updatedRecord.setIncomeId(1L);
@@ -159,11 +161,12 @@ public class IncomeRecordServiceImplTest {
         updatedRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
 
         when(incomeRecordRepository.findById(1L)).thenReturn(Optional.of(incomeRecord));
+        when(incomeSourceRepository.findById(HOURLY_SOURCE_ID)).thenReturn(Optional.of(hourlySource));
 
         // Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> incomeService.updateIncomeRecord(updatedRecord)
+                () -> incomeService.updateIncomeRecord(updatedRecord, HOURLY_SOURCE_ID)
         );
     }
 
@@ -171,7 +174,6 @@ public class IncomeRecordServiceImplTest {
     void updateIncomeRecord_throwsWhenAmountDoesNotMatchHoursTimesRate() {
         // Arrange — 2h × €50 = €100, but amount is €999
         incomeRecord.setIncomeId(1L);
-        incomeRecord.setIncomeSource(hourlySource);
 
         IncomeRecord updatedRecord = new IncomeRecord();
         updatedRecord.setIncomeId(1L);
@@ -180,19 +182,19 @@ public class IncomeRecordServiceImplTest {
         updatedRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
 
         when(incomeRecordRepository.findById(1L)).thenReturn(Optional.of(incomeRecord));
+        when(incomeSourceRepository.findById(HOURLY_SOURCE_ID)).thenReturn(Optional.of(hourlySource));
 
         // Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> incomeService.updateIncomeRecord(updatedRecord)
+                () -> incomeService.updateIncomeRecord(updatedRecord, HOURLY_SOURCE_ID)
         );
     }
 
     @Test
     void updateIncomeRecord_nullifiesHoursWorkedForFixedSource() {
-        // Arrange — existing record linked to a FIXED source, client sends hoursWorked anyway
+        // Arrange — switching to FIXED source, client sends hoursWorked anyway
         incomeRecord.setIncomeId(1L);
-        incomeRecord.setIncomeSource(fixedSource);
 
         IncomeRecord updatedRecord = new IncomeRecord();
         updatedRecord.setIncomeId(1L);
@@ -201,10 +203,11 @@ public class IncomeRecordServiceImplTest {
         updatedRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
 
         when(incomeRecordRepository.findById(1L)).thenReturn(Optional.of(incomeRecord));
+        when(incomeSourceRepository.findById(FIXED_SOURCE_ID)).thenReturn(Optional.of(fixedSource));
         when(incomeRecordRepository.save(incomeRecord)).thenReturn(incomeRecord);
 
         // Act
-        IncomeRecord result = incomeService.updateIncomeRecord(updatedRecord);
+        IncomeRecord result = incomeService.updateIncomeRecord(updatedRecord, FIXED_SOURCE_ID);
 
         // Assert
         assertThat(result.getHoursWorked()).isNull();

@@ -27,7 +27,7 @@ public class IncomeRecordController {
             @Valid @RequestBody IncomeRecordRequestDto incomeRecordRequestDto
     ) {
         IncomeRecord entity = IncomeRecordMapper.toEntity(incomeRecordRequestDto);
-        IncomeRecord result = incomeRecordService.createIncomeRecord(entity);
+        IncomeRecord result = incomeRecordService.createIncomeRecord(entity, incomeRecordRequestDto.incomeSourceId());
         return ResponseEntity.status(201).body(IncomeRecordMapper.toDto(result));
     }
 
@@ -38,7 +38,7 @@ public class IncomeRecordController {
     ) {
         IncomeRecord entity = IncomeRecordMapper.toEntity(incomeRecordRequestDto);
         entity.setIncomeId(id);
-        IncomeRecord result = incomeRecordService.updateIncomeRecord(entity);
+        IncomeRecord result = incomeRecordService.updateIncomeRecord(entity, incomeRecordRequestDto.incomeSourceId());
         return ResponseEntity.ok(IncomeRecordMapper.toDto(result));
     }
 

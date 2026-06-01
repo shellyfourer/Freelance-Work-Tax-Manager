@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 public record IncomeRecordResponseDto(
     Long incomeId,
+    Long incomeSourceId,
     String incomeSourceName,
     BigDecimal amount,
     BigDecimal hoursWorked,

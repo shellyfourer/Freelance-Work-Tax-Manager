@@ -27,34 +27,36 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
     }
 
     @Override
-    public IncomeRecord createIncomeRecord(IncomeRecord incomeRecord) {
+    public IncomeRecord createIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId) {
         User defaultUser = userRepository.findAll()
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No default user found")); // way for us to unwrap the container since findFirst() returns optional
 
-        IncomeSource defaultSource = incomeSourceRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No default income source found"));
+        IncomeSource source = incomeSourceRepository.findById(incomeSourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + incomeSourceId));
 
-        validateHoursAndAmount(incomeRecord, defaultSource);
+        validateHoursAndAmount(incomeRecord, source);
         incomeRecord.setUser(defaultUser);
-        incomeRecord.setIncomeSource(defaultSource);
+        incomeRecord.setIncomeSource(source);
 
         return incomeRecordRepository.save(incomeRecord);
     }
 
     @Override
-    public IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord) {
+    public IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId) {
         IncomeRecord income = incomeRecordRepository.findById(incomeRecord.getIncomeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + incomeRecord.getIncomeId()));
 
-        validateHoursAndAmount(incomeRecord, income.getIncomeSource());
+        IncomeSource source = incomeSourceRepository.findById(incomeSourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + incomeSourceId));
+
+        validateHoursAndAmount(incomeRecord, source);
         income.setAmount(incomeRecord.getAmount());
         income.setIncomeDate(incomeRecord.getIncomeDate());
         income.setDescription(incomeRecord.getDescription());
         income.setHoursWorked(incomeRecord.getHoursWorked());
+        income.setIncomeSource(source);
 
         return incomeRecordRepository.save(income);
     }

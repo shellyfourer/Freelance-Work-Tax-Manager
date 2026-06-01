@@ -29,6 +29,7 @@ public class IncomeRecordMapper {
     public static IncomeRecordResponseDto toDto(IncomeRecord entity) {
         return new IncomeRecordResponseDto(
             entity.getIncomeId(),
+            entity.getIncomeSource().getSourceId(),
             entity.getIncomeSource().getName(),
             entity.getAmount(),
             entity.getHoursWorked(),

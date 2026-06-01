@@ -11,5 +11,6 @@ public record IncomeRecordRequestDto(
     @NotNull @Positive BigDecimal amount,
     @NotNull LocalDate incomeDate,
     @Size(max = 500, message = "Description must not exceed 500 characters") String description,
-    @Positive BigDecimal hoursWorked
+    @Positive BigDecimal hoursWorked,
+    @NotNull Long incomeSourceId
 ) {}
