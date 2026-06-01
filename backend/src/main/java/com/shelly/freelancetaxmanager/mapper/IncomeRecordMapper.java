@@ -4,7 +4,6 @@ import com.shelly.freelancetaxmanager.dto.IncomeRecordRequestDto;
 import com.shelly.freelancetaxmanager.dto.IncomeRecordResponseDto;
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 
-
 public class IncomeRecordMapper {
 
     //I need to map the REQUEST Dto from the user toEntity
@@ -18,26 +17,26 @@ public class IncomeRecordMapper {
     //so service just calls the mapper, and the mapper calls the entity and the DTOs and controller knows nothing about the entities and the service knows nothing about the DTOs, they only interact with the mapper
 
 
-    public static IncomeRecord toEntity(IncomeRecordRequestDto dto){
+    public static IncomeRecord toEntity(IncomeRecordRequestDto dto) {
         IncomeRecord income = new IncomeRecord();
-
         income.setAmount(dto.amount());
         income.setIncomeDate(dto.incomeDate());
         income.setDescription(dto.description());
-
+        income.setHoursWorked(dto.hoursWorked());
         return income;
-
     }
 
-    public static IncomeRecordResponseDto toDto(IncomeRecord entity){
-
+    public static IncomeRecordResponseDto toDto(IncomeRecord entity) {
         return new IncomeRecordResponseDto(
             entity.getIncomeId(),
             entity.getIncomeSource().getName(),
             entity.getAmount(),
+            entity.getHoursWorked(),
             entity.getUser().getCurrency(),
             entity.getIncomeDate(),
             entity.getDescription(),
+            entity.getIncomeSource().getPaymentType(),
+            entity.getIncomeSource().getHourlyRate(),
             entity.getCreatedAt(),
             entity.getUpdatedAt()
         );

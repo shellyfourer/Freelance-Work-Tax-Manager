@@ -3,14 +3,15 @@ package com.shelly.freelancetaxmanager.service;
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 import com.shelly.freelancetaxmanager.entity.IncomeSource;
 import com.shelly.freelancetaxmanager.entity.User;
+import com.shelly.freelancetaxmanager.enums.PaymentType;
 import com.shelly.freelancetaxmanager.exception.ResourceNotFoundException;
 import com.shelly.freelancetaxmanager.repository.IncomeRecordRepository;
-import com.shelly.freelancetaxmanager.repository.UserRepository;
 import com.shelly.freelancetaxmanager.repository.IncomeSourceRepository;
+import com.shelly.freelancetaxmanager.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
-
 
 @Service
 public class IncomeRecordServiceImpl implements IncomeRecordService {
@@ -25,7 +26,6 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
         this.userRepository = userRepository;
     }
 
-
     @Override
     public IncomeRecord createIncomeRecord(IncomeRecord incomeRecord) {
         User defaultUser = userRepository.findAll()
@@ -38,6 +38,7 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No default income source found"));
 
+        validateHoursAndAmount(incomeRecord, defaultSource);
         incomeRecord.setUser(defaultUser);
         incomeRecord.setIncomeSource(defaultSource);
 
@@ -49,9 +50,11 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
         IncomeRecord income = incomeRecordRepository.findById(incomeRecord.getIncomeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + incomeRecord.getIncomeId()));
 
+        validateHoursAndAmount(incomeRecord, income.getIncomeSource());
         income.setAmount(incomeRecord.getAmount());
         income.setIncomeDate(incomeRecord.getIncomeDate());
         income.setDescription(incomeRecord.getDescription());
+        income.setHoursWorked(incomeRecord.getHoursWorked());
 
         return incomeRecordRepository.save(income);
     }
@@ -66,13 +69,27 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
 
     @Override
     public IncomeRecord getIncomeRecordById(Long id) {
-
         return incomeRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + id));
     }
 
     @Override
     public List<IncomeRecord> getIncomeRecordsByUser(Long userId) {
-       return incomeRecordRepository.findByUserUserId(userId);
+        return incomeRecordRepository.findByUserUserId(userId);
+    }
+
+    private void validateHoursAndAmount(IncomeRecord record, IncomeSource source) {
+        if (source.getPaymentType() == PaymentType.HOURLY) {
+            if (record.getHoursWorked() == null || record.getHoursWorked().signum() <= 0) {
+                throw new IllegalArgumentException("Hours worked is required for HOURLY income sources");
+            }
+            BigDecimal expected = record.getHoursWorked().multiply(source.getHourlyRate());
+            BigDecimal diff = record.getAmount().subtract(expected).abs();
+            if (diff.compareTo(new BigDecimal("0.01")) > 0) {
+                throw new IllegalArgumentException("Amount does not match hours worked * hourly rate");
+            }
+        } else if (source.getPaymentType() == PaymentType.FIXED) {
+            record.setHoursWorked(null);
+        }
     }
 }

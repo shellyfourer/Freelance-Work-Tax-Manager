@@ -1,13 +1,16 @@
 package com.shelly.freelancetaxmanager.controller;
 
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
+import com.shelly.freelancetaxmanager.entity.IncomeSource;
+import com.shelly.freelancetaxmanager.entity.User;
+import com.shelly.freelancetaxmanager.enums.PaymentType;
 import com.shelly.freelancetaxmanager.service.IncomeRecordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -20,14 +23,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//boots only web layers, does not start or create a database
 @WebMvcTest(IncomeRecordController.class)
 class IncomeRecordControllerTest {
 
-    @Autowired //fake http client
+    @Autowired
     private MockMvc mockMvc;
 
-    //mocks the service, does not start the real service, but allows us to define its behavior in tests
     @MockitoBean
     private IncomeRecordService incomeRecordService;
 
@@ -35,20 +36,21 @@ class IncomeRecordControllerTest {
 
     @BeforeEach
     void setUp() {
-        com.shelly.freelancetaxmanager.entity.User user =
-                new com.shelly.freelancetaxmanager.entity.User();
+        User user = new User();
         user.setName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
         user.setCurrency("EUR");
 
-        com.shelly.freelancetaxmanager.entity.IncomeSource incomeSource =
-                new com.shelly.freelancetaxmanager.entity.IncomeSource();
-        incomeSource.setName("Default Source");
+        IncomeSource incomeSource = new IncomeSource();
+        incomeSource.setName("Acme Corp");
+        incomeSource.setPaymentType(PaymentType.HOURLY);
+        incomeSource.setHourlyRate(new BigDecimal("50.00"));
 
         incomeRecord = new IncomeRecord();
         incomeRecord.setIncomeId(1L);
-        incomeRecord.setAmount(new BigDecimal("1000.00"));
+        incomeRecord.setAmount(new BigDecimal("500.00"));
+        incomeRecord.setHoursWorked(new BigDecimal("10.00"));
         incomeRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
         incomeRecord.setUser(user);
         incomeRecord.setIncomeSource(incomeSource);
@@ -62,12 +64,14 @@ class IncomeRecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "amount": 1000.00,
-                            "incomeDate": "2026-01-01"
+                            "amount": 500.00,
+                            "incomeDate": "2026-01-01",
+                            "hoursWorked": 10.00
                         }
                         """))
                 .andExpect(status().is(201))
-                .andExpect(jsonPath("$.incomeId").value(1));
+                .andExpect(jsonPath("$.incomeId").value(1))
+                .andExpect(jsonPath("$.paymentType").value("HOURLY"));
     }
 
     @Test
@@ -102,7 +106,8 @@ class IncomeRecordControllerTest {
         mockMvc.perform(get("/api/income-records/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incomeId").value(1))
-                .andExpect(jsonPath("$.currency").value("EUR"));
+                .andExpect(jsonPath("$.currency").value("EUR"))
+                .andExpect(jsonPath("$.hoursWorked").value(10.00));
     }
 
     @Test
@@ -119,6 +124,7 @@ class IncomeRecordControllerTest {
 
         mockMvc.perform(get("/api/income-records").param("userId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].incomeId").value(1));
+                .andExpect(jsonPath("$[0].incomeId").value(1))
+                .andExpect(jsonPath("$[0].paymentType").value("HOURLY"));
     }
 }
