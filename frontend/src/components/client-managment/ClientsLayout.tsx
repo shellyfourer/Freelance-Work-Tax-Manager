@@ -147,11 +147,6 @@ export function ClientsLayout() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-h2 text-foreground m-0">Clients</h2>
-            <span className="text-muted-foreground text-caption">
-              {hasClients
-                ? `${totalClients} ${totalClients === 1 ? "client" : "clients"} total`
-                : "No clients yet"}
-            </span>
           </div>
           <Button onClick={openAdd} className="h-11 px-5 cursor-pointer">
             + Add Client
