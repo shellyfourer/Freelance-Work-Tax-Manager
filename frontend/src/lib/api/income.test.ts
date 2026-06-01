@@ -155,10 +155,7 @@ describe("updateIncomeRecord", () => {
 
 describe("deleteIncomeRecord", () => {
   test("calls DELETE /api/income-records/{id} with the correct URL", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
     await deleteIncomeRecord(1);
@@ -171,15 +168,10 @@ describe("deleteIncomeRecord", () => {
     vi.unstubAllEnvs();
   });
 
-  test("returns the deleted IncomeRecord on success", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
-    );
+  test("resolves without a value on success", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
 
-    const result = await deleteIncomeRecord(1);
-
-    expect(result).toEqual(mockRecord);
+    await expect(deleteIncomeRecord(1)).resolves.toBeUndefined();
 
     vi.unstubAllGlobals();
   });
