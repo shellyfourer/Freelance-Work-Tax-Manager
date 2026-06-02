@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
+  { href: "/clients", label: "Client Management" },
   { href: "/income", label: "Income Tracking" },
   { href: "/calculator", label: "Tax Calculator" },
 ];

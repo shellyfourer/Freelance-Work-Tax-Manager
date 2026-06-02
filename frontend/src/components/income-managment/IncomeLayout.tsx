@@ -13,9 +13,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { IncomeSummaryCard } from "@/components/income/IncomeSummaryCard";
-import { IncomeRecordList } from "@/components/income/IncomeRecordList";
-import { IncomeRecordForm } from "@/components/income/IncomeRecordForm";
+import { SummaryCard } from "@/components/shared/SummaryCard";
+import { IncomeRecordList } from "@/components/income-managment/IncomeRecordList";
+import { IncomeRecordForm } from "@/components/income-managment/IncomeRecordForm";
 import {
   createIncomeRecord,
   getIncomeRecordsByUser,
@@ -25,7 +25,9 @@ import {
 import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 import { calculateTax } from "@/lib/api/tax";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
-import { calculateSummary } from "@/lib/utils/income";
+import { calculateIncomeSummary } from "@/lib/utils/income";
+import { getIncomeSourcesByUser } from "@/lib/api/client";
+import type { IncomeSource } from "@/lib/types/client";
 
 const DEFAULT_USER_ID = 1;
 const MONTH_SHORT = [
@@ -49,6 +51,7 @@ function formatMoney(amount: number): string {
 
 export function IncomeLayout() {
   const [records, setRecords] = useState<IncomeRecord[]>([]);
+  const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -62,8 +65,11 @@ export function IncomeLayout() {
   const [taxResult, setTaxResult] = useState<TaxCalculatorResult | null>(null);
 
   useEffect(() => {
-    getIncomeRecordsByUser(DEFAULT_USER_ID)
-      .then(setRecords)
+    Promise.all([getIncomeRecordsByUser(DEFAULT_USER_ID), getIncomeSourcesByUser(DEFAULT_USER_ID)])
+      .then(([records, sources]) => {
+        setRecords(records);
+        setIncomeSources(sources);
+      })
       .catch(() => setLoadError("Failed to load income records. Please try again."))
       .finally(() => setIsLoading(false));
   }, []);
@@ -71,7 +77,7 @@ export function IncomeLayout() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const elapsedMonths = Math.max(1, now.getMonth() + 1);
-  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateSummary(
+  const { totalIncome, monthlyAverage, projectedYearEnd } = calculateIncomeSummary(
     records,
     elapsedMonths,
   );
@@ -175,6 +181,7 @@ export function IncomeLayout() {
       <IncomeRecordForm
         open={showForm}
         editingRecord={editingRecord}
+        incomeSources={incomeSources}
         isSubmitting={isSubmitting}
         apiError={formError}
         onSave={handleSave}
@@ -214,12 +221,12 @@ export function IncomeLayout() {
             <span className="text-muted-foreground italic text-caption">Tracked factual data</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <IncomeSummaryCard
+            <SummaryCard
               label="Total Income So Far"
               value={hasRecords ? formatMoney(totalIncome) : "—"}
               empty={!hasRecords}
             />
-            <IncomeSummaryCard
+            <SummaryCard
               label="Average Monthly Income"
               value={hasRecords ? formatMoney(monthlyAverage) : "—"}
               empty={!hasRecords}
@@ -233,19 +240,17 @@ export function IncomeLayout() {
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <IncomeSummaryCard
+            <SummaryCard
               label="Estimated Year-End Income"
               value={hasRecords ? formatMoney(projectedYearEnd) : "—"}
               empty={!hasRecords}
-              semiProminent={true}
             />
-            <IncomeSummaryCard
+            <SummaryCard
               label="Est. Tax to Set Aside"
               value={taxResult ? formatMoney(taxResult.totalTax) : "—"}
-              semiProminent={true}
               empty={!taxResult}
             />
-            <IncomeSummaryCard
+            <SummaryCard
               label="Est. Net Income"
               value={taxResult ? formatMoney(taxResult.netIncome) : "—"}
               prominent={true}

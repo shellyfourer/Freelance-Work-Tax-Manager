@@ -7,6 +7,8 @@ import {
 import type { IncomeRecord, IncomeRecordRequest } from "@/lib/types/income";
 
 const mockRequest: IncomeRecordRequest = {
+  incomeSourceId: 1,
+  hoursWorked: 0,
   amount: 1500,
   incomeDate: "2026-01-15",
   description: "Freelance project",
@@ -14,11 +16,14 @@ const mockRequest: IncomeRecordRequest = {
 
 const mockRecord: IncomeRecord = {
   incomeId: 1,
+  incomeSourceId: 1,
   incomeSourceName: "Default Source",
   amount: 1500,
-  currency: "EUR",
+  hoursWorked: null,
   incomeDate: "2026-01-15",
   description: "Freelance project",
+  paymentType: "FIXED",
+  hourlyRate: null,
   createdAt: "2026-01-15T10:00:00",
   updatedAt: "2026-01-15T10:00:00",
 };
@@ -149,10 +154,7 @@ describe("updateIncomeRecord", () => {
 
 describe("deleteIncomeRecord", () => {
   test("calls DELETE /api/income-records/{id} with the correct URL", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
     await deleteIncomeRecord(1);
@@ -165,15 +167,10 @@ describe("deleteIncomeRecord", () => {
     vi.unstubAllEnvs();
   });
 
-  test("returns the deleted IncomeRecord on success", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockRecord) }),
-    );
+  test("resolves without a value on success", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
 
-    const result = await deleteIncomeRecord(1);
-
-    expect(result).toEqual(mockRecord);
+    await expect(deleteIncomeRecord(1)).resolves.toBeUndefined();
 
     vi.unstubAllGlobals();
   });

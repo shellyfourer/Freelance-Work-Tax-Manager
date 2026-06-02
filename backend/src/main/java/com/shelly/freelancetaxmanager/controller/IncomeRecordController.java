@@ -4,7 +4,7 @@ import com.shelly.freelancetaxmanager.dto.IncomeRecordRequestDto;
 import com.shelly.freelancetaxmanager.dto.IncomeRecordResponseDto;
 import com.shelly.freelancetaxmanager.entity.IncomeRecord;
 import com.shelly.freelancetaxmanager.mapper.IncomeRecordMapper;
-import com.shelly.freelancetaxmanager.service.IncomeService;
+import com.shelly.freelancetaxmanager.service.IncomeRecordService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +16,10 @@ import java.util.List;
 
 public class IncomeRecordController {
 
-    private final IncomeService incomeService;
+    private final IncomeRecordService incomeRecordService;
 
-    public IncomeRecordController(IncomeService incomeService) {
-        this.incomeService = incomeService;
+    public IncomeRecordController(IncomeRecordService incomeRecordService) {
+        this.incomeRecordService = incomeRecordService;
     }
 
     @PostMapping //following REST principles, the creation endpoint is not supposed to have a sep path
@@ -27,7 +27,7 @@ public class IncomeRecordController {
             @Valid @RequestBody IncomeRecordRequestDto incomeRecordRequestDto
     ) {
         IncomeRecord entity = IncomeRecordMapper.toEntity(incomeRecordRequestDto);
-        IncomeRecord result = incomeService.createIncomeRecord(entity);
+        IncomeRecord result = incomeRecordService.createIncomeRecord(entity, incomeRecordRequestDto.incomeSourceId());
         return ResponseEntity.status(201).body(IncomeRecordMapper.toDto(result));
     }
 
@@ -38,7 +38,7 @@ public class IncomeRecordController {
     ) {
         IncomeRecord entity = IncomeRecordMapper.toEntity(incomeRecordRequestDto);
         entity.setIncomeId(id);
-        IncomeRecord result = incomeService.updateIncomeRecord(entity);
+        IncomeRecord result = incomeRecordService.updateIncomeRecord(entity, incomeRecordRequestDto.incomeSourceId());
         return ResponseEntity.ok(IncomeRecordMapper.toDto(result));
     }
 
@@ -46,7 +46,7 @@ public class IncomeRecordController {
     public ResponseEntity<Void> deleteIncomeRecord(
             @PathVariable Long id
     ) {
-        incomeService.deleteIncomeRecord(id);
+        incomeRecordService.deleteIncomeRecord(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -54,7 +54,7 @@ public class IncomeRecordController {
     public ResponseEntity<IncomeRecordResponseDto> getIncomeRecordById(
             @PathVariable Long id
     ) {
-        IncomeRecord result = incomeService.getIncomeRecordById(id);
+        IncomeRecord result = incomeRecordService.getIncomeRecordById(id);
         return ResponseEntity.ok(IncomeRecordMapper.toDto(result));
     }
 
@@ -62,7 +62,7 @@ public class IncomeRecordController {
     public ResponseEntity<List<IncomeRecordResponseDto>> getIncomeRecordsByUser(
             @RequestParam Long userId
     ) {
-        List<IncomeRecordResponseDto> result = incomeService.getIncomeRecordsByUser(userId)
+        List<IncomeRecordResponseDto> result = incomeRecordService.getIncomeRecordsByUser(userId)
                 .stream()
                 .map(IncomeRecordMapper::toDto)
                 .toList();

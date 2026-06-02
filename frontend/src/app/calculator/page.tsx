@@ -1,4 +1,4 @@
-import { TaxCalculatorLayout } from "@/components/calculator/TaxCalculatorLayout";
+import { TaxCalculatorLayout } from "@/components/tax-calculator/TaxCalculatorLayout";
 
 export default function Home() {
   return <TaxCalculatorLayout />;

@@ -25,6 +25,9 @@ public class IncomeRecord {
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
+    @Column(name = "hours_worked", precision = 10, scale = 2)
+    private BigDecimal hoursWorked;
+
     @Column(name = "income_date", nullable = false)
     private LocalDate incomeDate;
 
@@ -59,6 +62,9 @@ public class IncomeRecord {
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }
+
+    public BigDecimal getHoursWorked() { return hoursWorked; }
+    public void setHoursWorked(BigDecimal hoursWorked) { this.hoursWorked = hoursWorked; }
 
     public LocalDate getIncomeDate() { return incomeDate; }
     public void setIncomeDate(LocalDate incomeDate) { this.incomeDate = incomeDate; }

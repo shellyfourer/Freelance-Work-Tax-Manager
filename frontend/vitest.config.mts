@@ -9,5 +9,13 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    setupFiles: ["./vitest.setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["lcov", "text"],
+      reportsDirectory: "./coverage",
+      include: ["src/**/*.ts", "src/**/*.tsx"],
+      exclude: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.d.ts", "src/**/*.config.ts"],
+    },
   },
 });

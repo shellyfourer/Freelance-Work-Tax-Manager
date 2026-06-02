@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ResultValue } from "@/components/calculator/ResultValue";
+import { ResultValue } from "@/components/tax-calculator/ResultValue";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 
 // Currency symbol — will be country-driven later
@@ -31,7 +31,7 @@ export function TaxCalculatorResults({
       ? `Based on your income: ${CURRENCY}${parseFloat(submittedIncome).toLocaleString()}`
       : isCalculating
         ? "Processing your input…"
-        : "Results appear here after you click Calculate";
+        : "Results appear here after you enter information";
   const subtitleItalic = !result || !submittedIncome;
 
   return (

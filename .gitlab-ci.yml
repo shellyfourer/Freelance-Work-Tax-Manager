@@ -3,18 +3,25 @@ cache:
     - backend/.gradle/wrapper
     - backend/.gradle/caches
 
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
 stages:
   - build
   - test
+  - sonarqube-check
   - push
   - deploy
-  - sonarqube-check
 
 backend-build:
   stage: build
   script:
     - cd backend
-    - ./gradlew assemble --no-daemon
+    - ./gradlew assemble
+  artifacts:
+    paths:
+      - backend/build/classes/
+    expire_in: 1 hour
 
 frontend-build:
   stage: build
@@ -27,7 +34,11 @@ backend-test:
   stage: test
   script:
     - cd backend
-    - ./gradlew test --no-daemon
+    - ./gradlew test
+  artifacts:
+    paths:
+      - backend/build/reports/jacoco/
+    expire_in: 1 hour
 
 frontend-test:
   stage: test
@@ -35,7 +46,31 @@ frontend-test:
     - cd frontend
     - pnpm install --frozen-lockfile
     - pnpm check
-    - pnpm test
+    - pnpm test --coverage
+  artifacts:
+    paths:
+      - frontend/coverage/
+    expire_in: 1 hour
+
+sonarqube-check-backend:
+  stage: sonarqube-check
+  needs:
+    - backend-build
+    - backend-test
+  script:
+    - cd backend
+    - ./gradlew sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=$SONAR_TOKEN_BACKEND
+  allow_failure: true
+
+sonarqube-check-frontend:
+  stage: sonarqube-check
+  needs:
+    - frontend-test
+  script:
+    - cd frontend
+    - pnpm install --frozen-lockfile
+    - sonar-scanner -Dsonar.host.url=http://localhost:9000 -Dsonar.token=$SONAR_TOKEN_FRONTEND
+  allow_failure: true
 
 push-backend-image:
   stage: push
@@ -63,9 +98,3 @@ deploy-production:
     - cd /home/ubuntu/freelance-tax-manager
     - docker compose pull
     - docker compose up -d
-
-sonarqube-check:
-  stage: sonarqube-check
-  script:
-    - echo "This is a demo stage replacing SonarQube analysis"
-

@@ -43,7 +43,7 @@ export async function updateIncomeRecord(
   return res.json();
 }
 
-export async function deleteIncomeRecord(id: number): Promise<IncomeRecord> {
+export async function deleteIncomeRecord(id: number): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/income-records/${id}`, {
     method: "DELETE",
   });
@@ -51,6 +51,4 @@ export async function deleteIncomeRecord(id: number): Promise<IncomeRecord> {
   if (!res.ok) {
     throw new Error("Failed to delete income record");
   }
-
-  return res.json();
 }

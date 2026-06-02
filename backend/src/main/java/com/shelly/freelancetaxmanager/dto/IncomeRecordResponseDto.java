@@ -1,17 +1,21 @@
 package com.shelly.freelancetaxmanager.dto;
 
+import com.shelly.freelancetaxmanager.enums.PaymentType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record IncomeRecordResponseDto(
-        Long incomeId,
-        String incomeSourceName,
-        BigDecimal amount,
-        String currency,
-        LocalDate incomeDate,
-        String description,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+    Long incomeId,
+    Long incomeSourceId,
+    String incomeSourceName,
+    BigDecimal amount,
+    BigDecimal hoursWorked,
+    LocalDate incomeDate,
+    String description,
+    PaymentType paymentType,
+    BigDecimal hourlyRate,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
 ) {}
