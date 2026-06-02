@@ -54,6 +54,9 @@ frontend-test:
 
 sonarqube-check-backend:
   stage: sonarqube-check
+  needs:
+    - backend-build
+    - backend-test
   script:
     - cd backend
     - ./gradlew sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=$SONAR_TOKEN_BACKEND
@@ -61,6 +64,8 @@ sonarqube-check-backend:
 
 sonarqube-check-frontend:
   stage: sonarqube-check
+  needs:
+    - frontend-test
   script:
     - cd frontend
     - pnpm install --frozen-lockfile
@@ -93,4 +98,3 @@ deploy-production:
     - cd /home/ubuntu/freelance-tax-manager
     - docker compose pull
     - docker compose up -d
-
