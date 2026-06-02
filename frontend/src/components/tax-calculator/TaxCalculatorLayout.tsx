@@ -8,7 +8,8 @@ import {
 import { TaxCalculatorResults } from "@/components/tax-calculator/TaxCalculatorResults";
 import type { TaxCalculatorResult } from "@/lib/types/tax";
 
-const WS_URL = "ws://localhost:8080/ws/tax-calculator";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const WS_URL = apiUrl.replace(/^http/, "ws") + "/ws/tax-calculator";
 const DEBOUNCE_MS = 500;
 const LOADING_DELAY_MS = 500; //this, i think we need to move into a sep file and make it reusable,
 //because I need all loading states to trigger after this delay so that there is no poor UX
