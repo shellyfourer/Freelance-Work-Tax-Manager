@@ -18,6 +18,10 @@ backend-build:
   script:
     - cd backend
     - ./gradlew assemble
+  artifacts:
+    paths:
+      - backend/build/classes/
+    expire_in: 1 hour
 
 frontend-build:
   stage: build
