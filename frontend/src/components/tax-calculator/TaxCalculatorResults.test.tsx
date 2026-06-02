@@ -17,7 +17,9 @@ describe("TaxCalculatorResults", () => {
   test("renders placeholder state when result is null", () => {
     render(<TaxCalculatorResults result={null} isCalculating={false} submittedIncome="" />);
 
-    expect(screen.getByText(/results appear here after you click calculate/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/results appear here after you enter information/i),
+    ).toBeInTheDocument();
     expect(screen.getByText("Applied tax rate: —")).toBeInTheDocument();
     expect(screen.getByText("Your net income after tax")).toBeInTheDocument();
   });

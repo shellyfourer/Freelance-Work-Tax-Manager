@@ -31,7 +31,7 @@ export function TaxCalculatorResults({
       ? `Based on your income: ${CURRENCY}${parseFloat(submittedIncome).toLocaleString()}`
       : isCalculating
         ? "Processing your input…"
-        : "Results appear here after you click Calculate";
+        : "Results appear here after you enter information";
   const subtitleItalic = !result || !submittedIncome;
 
   return (

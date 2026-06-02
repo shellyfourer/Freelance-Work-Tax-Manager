@@ -1,62 +1,22 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { TaxCalculatorForm } from "./TaxCalculatorForm";
 
 const defaultProps = {
-  onSubmit: vi.fn(),
-  isCalculating: false,
   apiError: null,
-  onFormChange: vi.fn(),
+  onFieldChange: vi.fn(),
 };
 
 describe("TaxCalculatorForm", () => {
-  test("renders income input, country select, and submit button", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test("renders income input and country select", () => {
     render(<TaxCalculatorForm {...defaultProps} />);
 
     expect(screen.getByLabelText(/enter your income/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/select your country/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /calculate/i })).toBeInTheDocument();
-  });
-
-  test("input field cannot be empty", async () => {
-    render(<TaxCalculatorForm {...defaultProps} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /calculate/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText(/please enter a valid income amount/i)).toBeInTheDocument();
-    });
-  });
-
-  test("income cannot be negative", async () => {
-    render(<TaxCalculatorForm {...defaultProps} />);
-
-    fireEvent.change(screen.getByLabelText(/enter your income/i), {
-      target: { value: "-100" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /calculate/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText(/income must be greater than zero/i)).toBeInTheDocument();
-    });
-  });
-
-  test("calls onSubmit with correct values when form is valid", async () => {
-    const onSubmit = vi.fn();
-    render(<TaxCalculatorForm {...defaultProps} onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText(/enter your income/i), {
-      target: { value: "5000" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /calculate/i }));
-
-    await waitFor(() => {
-      // React Hook Form calls onSubmit(data, event) — only assert on the data argument
-      expect(onSubmit).toHaveBeenCalledWith(
-        { incomeAmount: "5000", country: "LT" },
-        expect.anything(),
-      );
-    });
   });
 
   test("displays apiError message when prop is provided", () => {
@@ -65,9 +25,46 @@ describe("TaxCalculatorForm", () => {
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
   });
 
-  test("disables submit button when isCalculating is true", () => {
-    render(<TaxCalculatorForm {...defaultProps} isCalculating={true} />);
+  test("calls onFieldChange with typed income and default country", () => {
+    render(<TaxCalculatorForm {...defaultProps} />);
 
-    expect(screen.getByRole("button", { name: /calculating/i })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(/enter your income/i), {
+      target: { value: "50000" },
+    });
+
+    expect(defaultProps.onFieldChange).toHaveBeenCalledWith({
+      incomeAmount: "50000",
+      country: "LT",
+    });
+  });
+
+  test("shows validation error when income is zero", () => {
+    render(<TaxCalculatorForm {...defaultProps} />);
+
+    fireEvent.change(screen.getByLabelText(/enter your income/i), {
+      target: { value: "0" },
+    });
+
+    expect(screen.getByText(/income must be greater than zero/i)).toBeInTheDocument();
+  });
+
+  test("shows validation error when income is negative", () => {
+    render(<TaxCalculatorForm {...defaultProps} />);
+
+    fireEvent.change(screen.getByLabelText(/enter your income/i), {
+      target: { value: "-100" },
+    });
+
+    expect(screen.getByText(/income must be greater than zero/i)).toBeInTheDocument();
+  });
+
+  test("does not show validation error when input is empty", () => {
+    render(<TaxCalculatorForm {...defaultProps} />);
+
+    fireEvent.change(screen.getByLabelText(/enter your income/i), {
+      target: { value: "" },
+    });
+
+    expect(screen.queryByText(/income must be greater than zero/i)).not.toBeInTheDocument();
   });
 });
