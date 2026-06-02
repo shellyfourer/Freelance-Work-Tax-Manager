@@ -3,17 +3,21 @@ cache:
     - backend/.gradle/wrapper
     - backend/.gradle/caches
 
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
 stages:
   - build
   - test
-  - push
   - sonarqube-check
+  - push
+  - deploy
 
 backend-build:
   stage: build
   script:
     - cd backend
-    - ./gradlew assemble --no-daemon
+    - ./gradlew assemble
 
 frontend-build:
   stage: build
@@ -26,7 +30,11 @@ backend-test:
   stage: test
   script:
     - cd backend
-    - ./gradlew test --no-daemon
+    - ./gradlew test
+  artifacts:
+    paths:
+      - backend/build/reports/jacoco/
+    expire_in: 1 hour
 
 frontend-test:
   stage: test
@@ -34,7 +42,26 @@ frontend-test:
     - cd frontend
     - pnpm install --frozen-lockfile
     - pnpm check
-    - pnpm test
+    - pnpm test --coverage
+  artifacts:
+    paths:
+      - frontend/coverage/
+    expire_in: 1 hour
+
+sonarqube-check-backend:
+  stage: sonarqube-check
+  script:
+    - cd backend
+    - ./gradlew sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=$SONAR_TOKEN_BACKEND
+  allow_failure: true
+
+sonarqube-check-frontend:
+  stage: sonarqube-check
+  script:
+    - cd frontend
+    - pnpm install --frozen-lockfile
+    - sonar-scanner -Dsonar.host.url=http://localhost:9000 -Dsonar.token=$SONAR_TOKEN_FRONTEND
+  allow_failure: true
 
 push-backend-image:
   stage: push
@@ -54,8 +81,12 @@ push-frontend-image:
     - docker build --build-arg NEXT_PUBLIC_API_URL="$NEXT_PUBLIC_API_URL" -t "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest" ./frontend
     - docker push "$DOCKERHUB_USERNAME/freelance-tax-manager-frontend:latest"
 
-sonarqube-check:
-  stage: sonarqube-check
+deploy-production:
+  stage: deploy
+  only:
+    - main
   script:
-    - echo "This is a demo stage replacing SonarQube analysis"
+    - cd /home/ubuntu/freelance-tax-manager
+    - docker compose pull
+    - docker compose up -d
 
