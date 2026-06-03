@@ -17,6 +17,14 @@ test.describe.serial("User journey", () => {
     // Wipe all income records then clients so each run starts empty
     page = await browser.newPage();
 
+    // Disable CSS animations so Radix dropdowns are stable and clicks are reliable
+    await page.addInitScript(() => {
+      const style = document.createElement("style");
+      style.textContent =
+        "*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; animation-delay: 0s !important; }";
+      document.head.appendChild(style);
+    });
+
     const recordsRes = await request.get(`${BACKEND}/api/income-records?userId=1`);
     const records = await recordsRes.json();
     for (const r of records) {
@@ -136,7 +144,7 @@ test.describe.serial("User journey", () => {
   // Step 5: tax calculator WebSocket
 
   test("calculates tax via WebSocket after entering income", async () => {
-    await currentPage().goto("/calculator", { waitUntil: "domcontentloaded" });
+    await currentPage().goto("/calculator", { waitUntil: "load" });
 
     await expect(
       currentPage().getByText(/results appear here after you enter information/i),
@@ -144,8 +152,8 @@ test.describe.serial("User journey", () => {
 
     await currentPage().getByLabel("Income field").fill("50000");
 
-    // Wait for the WebSocket round trip — result replaces the placeholder
-    await expect(currentPage().getByText(/based on your income/i)).toBeVisible();
+    // Debounce (500ms) + WebSocket round trip — generous timeout
+    await expect(currentPage().getByText(/based on your income/i)).toBeVisible({ timeout: 10000 });
     await expect(currentPage().getByText("€ —")).not.toBeVisible();
   });
 });
