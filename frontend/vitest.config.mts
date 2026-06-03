@@ -10,6 +10,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    exclude: ["node_modules", "e2e/**"],
     coverage: {
       provider: "v8",
       reporter: ["lcov", "text"],
@@ -19,7 +20,7 @@ export default defineConfig({
         "src/**/*.test.ts",
         "src/**/*.test.tsx",
         "src/**/*.d.ts",
-        'src/**/*.config.ts, "e2e/**"',
+        "src/**/*.config.ts",
       ],
     },
   },
