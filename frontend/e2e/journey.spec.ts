@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const BACKEND = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:8080";
 const today = new Date().toISOString().split("T")[0];
 
 test.describe.serial("User journey", () => {
