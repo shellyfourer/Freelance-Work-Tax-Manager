@@ -53,8 +53,8 @@ test.describe.serial("User journey", () => {
 
     await currentPage().getByLabel("Name").fill("Globex Project");
     await currentPage().getByLabel("Payment Type").fill("Fix");
-    await currentPage().getByLabel("Payment Type").press("ArrowDown");
-    await currentPage().getByLabel("Payment Type").press("Enter");
+    await currentPage().getByRole("button", { name: "Fixed price" }).waitFor({ state: "visible" });
+    await currentPage().getByRole("button", { name: "Fixed price" }).click({ force: true });
     await currentPage().getByRole("button", { name: "Save" }).click();
 
     await expect(currentPage().getByText("Client created.").first()).toBeVisible();
@@ -66,8 +66,8 @@ test.describe.serial("User journey", () => {
 
     await currentPage().getByLabel("Name").fill("Acme Corp");
     await currentPage().getByLabel("Payment Type").fill("Hour");
-    await currentPage().getByLabel("Payment Type").press("ArrowDown");
-    await currentPage().getByLabel("Payment Type").press("Enter");
+    await currentPage().getByRole("button", { name: "Hourly rate" }).waitFor({ state: "visible" });
+    await currentPage().getByRole("button", { name: "Hourly rate" }).click({ force: true });
     await currentPage().getByLabel("Hourly Rate").fill("75");
     await currentPage().getByRole("button", { name: "Save" }).click();
 
