@@ -37,7 +37,7 @@ test.describe.serial("User journey", () => {
   // Step 1: empty state
 
   test("sees empty client dashboard", async () => {
-    await currentPage().goto("/clients", { waitUntil: "networkidle" });
+    await currentPage().goto("/clients", { waitUntil: "domcontentloaded" });
 
     await expect(currentPage().getByRole("heading", { name: "Clients" })).toBeVisible();
     await expect(
@@ -78,7 +78,7 @@ test.describe.serial("User journey", () => {
   // Step 3: add income records
 
   test("adds an income record linked to a FIXED client", async () => {
-    await currentPage().goto("/income", { waitUntil: "networkidle" });
+    await currentPage().goto("/income", { waitUntil: "domcontentloaded" });
 
     await currentPage().getByRole("button", { name: "+ Add Income" }).click();
     await expect(currentPage().getByText("+ Add Income")).toBeVisible();
@@ -136,7 +136,7 @@ test.describe.serial("User journey", () => {
   // Step 5: tax calculator WebSocket
 
   test("calculates tax via WebSocket after entering income", async () => {
-    await currentPage().goto("/calculator", { waitUntil: "networkidle" });
+    await currentPage().goto("/calculator", { waitUntil: "domcontentloaded" });
 
     await expect(
       currentPage().getByText(/results appear here after you enter information/i),
