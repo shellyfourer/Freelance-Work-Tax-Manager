@@ -9,6 +9,7 @@ variables:
 stages:
   - build
   - test
+  - e2e-test
   - sonarqube-check
   - push
   - deploy
@@ -51,6 +52,17 @@ frontend-test:
     paths:
       - frontend/coverage/
     expire_in: 1 hour
+
+playwright-e2e:
+  stage: e2e-test
+  script:
+    - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e up --build -d
+    - cd frontend
+    - pnpm install --frozen-lockfile
+    - pnpm exec playwright install --with-deps chromium
+    - pnpm test:e2e
+  after_script:
+    - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e down
 
 sonarqube-check-backend:
   stage: sonarqube-check

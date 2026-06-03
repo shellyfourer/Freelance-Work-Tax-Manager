@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: tax-manager-backend-e2e
+    ports:
+      - "8081:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+    image: tax-manager-frontend-e2e
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
