@@ -50,7 +50,8 @@ test.describe.serial("User journey", () => {
     await page.getByRole("button", { name: "+ Add Client" }).click();
     await page.getByLabel("Name").fill("Globex Project");
     await page.getByLabel("Payment Type").fill("Fix");
-    await page.getByRole("button", { name: "Fixed price" }).click({ force: true });
+    await page.getByLabel("Payment Type").press("ArrowDown");
+    await page.getByLabel("Payment Type").press("Enter");
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.getByText("Globex Project")).toBeVisible({ timeout: 10000 });
   });
@@ -59,7 +60,8 @@ test.describe.serial("User journey", () => {
     await page.getByRole("button", { name: "+ Add Client" }).click();
     await page.getByLabel("Name").fill("Acme Corp");
     await page.getByLabel("Payment Type").fill("Hour");
-    await page.getByRole("button", { name: "Hourly rate" }).click({ force: true });
+    await page.getByLabel("Payment Type").press("ArrowDown");
+    await page.getByLabel("Payment Type").press("Enter");
     await page.getByLabel("Hourly Rate").fill("75");
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.getByText("Acme Corp")).toBeVisible({ timeout: 10000 });
