@@ -58,13 +58,14 @@ playwright-e2e:
   script:
     - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e up --build -d
     - docker ps
-    - curl --fail --retry 30 --retry-delay 2 --retry-connrefused http://localhost:8081/api/clients?userId=1
-    - curl --fail --retry 30 --retry-delay 2 --retry-connrefused http://localhost:3001/clients
+    - curl --fail --retry 30 --retry-delay 2 --retry-all-errors http://localhost:8081/api/clients?userId=1
+    - curl --fail --retry 30 --retry-delay 2 --retry-all-errors http://localhost:3001/clients
     - cd frontend
     - pnpm install --frozen-lockfile
     - pnpm test:e2e
   after_script:
-    - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e logs
+    - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e ps
+    - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e logs backend frontend
     - docker compose -f docker-compose.e2e.yml -p tax-manager-e2e down
 
 sonarqube-check-backend:
