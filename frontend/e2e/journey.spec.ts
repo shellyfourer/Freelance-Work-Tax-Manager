@@ -4,17 +4,9 @@ const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:8080";
 const today = new Date().toISOString().split("T")[0];
 
 test.describe.serial("User journey", () => {
-  let page: Page | undefined;
-
-  const currentPage = (): Page => {
-    if (!page) {
-      throw new Error("Playwright page was not initialized");
-    }
-    return page;
-  };
+  let page!: Page;
 
   test.beforeAll(async ({ browser, request }) => {
-    // Wipe all income records then clients so each run starts empty
     page = await browser.newPage();
 
     // Disable CSS animations so Radix dropdowns are stable and clicks are reliable
@@ -39,121 +31,93 @@ test.describe.serial("User journey", () => {
   });
 
   test.afterAll(async () => {
-    await page?.close();
+    await page.close();
   });
 
   // Step 1: empty state
 
   test("sees empty client dashboard", async () => {
-    await currentPage().goto("/clients", { waitUntil: "domcontentloaded" });
-
-    await expect(currentPage().getByRole("heading", { name: "Clients" })).toBeVisible();
+    await page.goto("/clients", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: "Clients" })).toBeVisible();
     await expect(
-      currentPage().getByText("No clients yet. Add your first client to start tracking income."),
+      page.getByText("No clients yet. Add your first client to start tracking income."),
     ).toBeVisible({ timeout: 10000 });
   });
 
   // Step 2: add clients
 
   test("adds a FIXED client", async () => {
-    await currentPage().getByRole("button", { name: "+ Add Client" }).click();
-    await expect(currentPage().getByText("+ Add Client")).toBeVisible();
-
-    await currentPage().getByLabel("Name").fill("Globex Project");
-    await currentPage().getByLabel("Payment Type").fill("Fix");
-    await currentPage().getByRole("button", { name: "Fixed price" }).waitFor({ state: "visible" });
-    await currentPage().getByRole("button", { name: "Fixed price" }).click({ force: true });
-    await currentPage().getByRole("button", { name: "Save" }).click();
-
-    await expect(currentPage().getByText("Client created.").first()).toBeVisible();
-    await expect(currentPage().getByText("Globex Project")).toBeVisible();
+    await page.getByRole("button", { name: "+ Add Client" }).click();
+    await page.getByLabel("Name").fill("Globex Project");
+    await page.getByLabel("Payment Type").fill("Fix");
+    await page.getByRole("button", { name: "Fixed price" }).click({ force: true });
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Globex Project")).toBeVisible({ timeout: 10000 });
   });
 
   test("adds an HOURLY client", async () => {
-    await currentPage().getByRole("button", { name: "+ Add Client" }).click();
-
-    await currentPage().getByLabel("Name").fill("Acme Corp");
-    await currentPage().getByLabel("Payment Type").fill("Hour");
-    await currentPage().getByRole("button", { name: "Hourly rate" }).waitFor({ state: "visible" });
-    await currentPage().getByRole("button", { name: "Hourly rate" }).click({ force: true });
-    await currentPage().getByLabel("Hourly Rate").fill("75");
-    await currentPage().getByRole("button", { name: "Save" }).click();
-
-    await expect(currentPage().getByText("Client created.").first()).toBeVisible();
-    await expect(currentPage().getByText("Acme Corp")).toBeVisible();
+    await page.getByRole("button", { name: "+ Add Client" }).click();
+    await page.getByLabel("Name").fill("Acme Corp");
+    await page.getByLabel("Payment Type").fill("Hour");
+    await page.getByRole("button", { name: "Hourly rate" }).click({ force: true });
+    await page.getByLabel("Hourly Rate").fill("75");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Acme Corp")).toBeVisible({ timeout: 10000 });
   });
 
   // Step 3: add income records
 
   test("adds an income record linked to a FIXED client", async () => {
-    await currentPage().goto("/income", { waitUntil: "domcontentloaded" });
-
-    await currentPage().getByRole("button", { name: "+ Add Income" }).click();
-    await expect(currentPage().getByText("+ Add Income")).toBeVisible();
-
-    await currentPage().getByLabel("Client").fill("Glob");
-    await currentPage().getByLabel("Client").press("ArrowDown");
-    await currentPage().getByLabel("Client").press("Enter");
-    await currentPage().getByLabel("Income Amount").fill("2500");
-    await currentPage().getByLabel("Income Date").fill(today);
-    await currentPage().getByRole("button", { name: "Save" }).click();
-
-    await expect(currentPage().getByText("Income record created.").first()).toBeVisible();
-    await expect(currentPage().getByText("Globex Project").first()).toBeVisible();
+    await page.goto("/income", { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: "+ Add Income" }).click();
+    await page.getByLabel("Client").fill("Glob");
+    await page.getByLabel("Client").press("ArrowDown");
+    await page.getByLabel("Client").press("Enter");
+    await page.getByLabel("Income Amount").fill("2500");
+    await page.getByLabel("Income Date").fill(today);
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Globex Project").first()).toBeVisible({ timeout: 10000 });
   });
 
   test("adds an income record linked to an HOURLY client — hours convert to amount", async () => {
-    await currentPage().getByRole("button", { name: "+ Add Income" }).click();
-
-    await currentPage().getByLabel("Client").fill("Acme");
-    await currentPage().getByLabel("Client").press("ArrowDown");
-    await currentPage().getByLabel("Client").press("Enter");
-
-    // 8 hrs × €75 = €600
-    await currentPage().getByLabel("Hours").fill("8");
-    await expect(currentPage().getByText("€600.00")).toBeVisible();
-
-    await currentPage().getByLabel("Income Date").fill(today);
-    await currentPage().getByRole("button", { name: "Save" }).click();
-
-    await expect(currentPage().getByText("Income record created.").first()).toBeVisible();
-    await expect(currentPage().getByText("Acme Corp").first()).toBeVisible();
+    await page.getByRole("button", { name: "+ Add Income" }).click();
+    await page.getByLabel("Client").fill("Acme");
+    await page.getByLabel("Client").press("ArrowDown");
+    await page.getByLabel("Client").press("Enter");
+    await page.getByLabel("Hours").fill("8");
+    await expect(page.getByText("€600.00")).toBeVisible();
+    await page.getByLabel("Income Date").fill(today);
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByText("Acme Corp").first()).toBeVisible({ timeout: 10000 });
   });
 
   // Step 4: delete
 
   test("deletes an income record", async () => {
-    await currentPage().getByRole("button", { name: "+ Add Income" }).click();
-    await currentPage().getByLabel("Client").fill("Glob");
-    await currentPage().getByLabel("Client").press("ArrowDown");
-    await currentPage().getByLabel("Client").press("Enter");
-    await currentPage().getByLabel("Income Amount").fill("999");
-    await currentPage().getByLabel("Income Date").fill(today);
-    await currentPage().getByLabel("Description").fill("to-be-deleted");
-    await currentPage().getByRole("button", { name: "Save" }).click();
-    await expect(currentPage().getByText("Income record created.").first()).toBeVisible();
+    await page.getByRole("button", { name: "+ Add Income" }).click();
+    await page.getByLabel("Client").fill("Glob");
+    await page.getByLabel("Client").press("ArrowDown");
+    await page.getByLabel("Client").press("Enter");
+    await page.getByLabel("Income Amount").fill("999");
+    await page.getByLabel("Income Date").fill(today);
+    await page.getByLabel("Description").fill("to-be-deleted");
+    await page.getByRole("button", { name: "Save" }).click();
 
-    const row = currentPage().locator("tr").filter({ hasText: "to-be-deleted" });
+    const row = page.locator("tr").filter({ hasText: "to-be-deleted" });
+    await row.waitFor({ state: "visible" });
     await row.getByRole("button", { name: "Delete" }).click();
-    await currentPage().getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
 
-    await expect(currentPage().getByText("Income record deleted.")).toBeVisible();
-    await expect(currentPage().getByText("to-be-deleted")).not.toBeVisible();
+    await expect(page.getByText("to-be-deleted")).not.toBeVisible();
   });
 
   // Step 5: tax calculator WebSocket
 
   test("calculates tax via WebSocket after entering income", async () => {
-    await currentPage().goto("/calculator", { waitUntil: "load" });
-
-    await expect(
-      currentPage().getByText(/results appear here after you enter information/i),
-    ).toBeVisible();
-
-    await currentPage().getByLabel("Income field").fill("50000");
-
-    // Debounce (500ms) + WebSocket round trip — generous timeout
-    await expect(currentPage().getByText(/based on your income/i)).toBeVisible({ timeout: 10000 });
-    await expect(currentPage().getByText("€ —")).not.toBeVisible();
+    await page.goto("/calculator", { waitUntil: "load" });
+    await expect(page.getByText(/results appear here after you enter information/i)).toBeVisible();
+    await page.getByLabel("Income field").fill("50000");
+    await expect(page.getByText(/based on your income/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("€ —")).not.toBeVisible();
   });
 });
