@@ -85,10 +85,22 @@ export function FormModal({
       </AlertDialog>
 
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
         className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/45"
         onClick={requestClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") requestClose();
+        }}
       >
-        <div className={cn(cardClass, "max-w-110")} onClick={(e) => e.stopPropagation()}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          className={cn(cardClass, "max-w-110")}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           <p className="text-h4 text-foreground m-0">{title}</p>
           <Separator className="opacity-40" />
 

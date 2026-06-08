@@ -16,6 +16,7 @@ public class IncomeRecordMapper {
 
     //so service just calls the mapper, and the mapper calls the entity and the DTOs and controller knows nothing about the entities and the service knows nothing about the DTOs, they only interact with the mapper
 
+    private IncomeRecordMapper() {}
 
     public static IncomeRecord toEntity(IncomeRecordRequestDto dto) {
         IncomeRecord income = new IncomeRecord();

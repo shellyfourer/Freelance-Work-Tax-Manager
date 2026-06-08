@@ -13,6 +13,8 @@ import java.util.List;
 @Service
 public class IncomeSourceServiceImpl implements IncomeSourceService {
 
+    private static final String INCOME_SOURCE_NOT_FOUND = "Income source not found with ID: ";
+
     private final IncomeSourceRepository incomeSourceRepository;
     private final UserRepository userRepository;
 
@@ -38,7 +40,7 @@ public class IncomeSourceServiceImpl implements IncomeSourceService {
     @Override
     public IncomeSource updateIncomeSource(IncomeSource incomeSource) {
         IncomeSource source = incomeSourceRepository.findById(incomeSource.getSourceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + incomeSource.getSourceId()));
+                .orElseThrow(() -> new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + incomeSource.getSourceId()));
 
         source.setName(incomeSource.getName());
         source.setDescription(incomeSource.getDescription());
@@ -52,7 +54,7 @@ public class IncomeSourceServiceImpl implements IncomeSourceService {
     @Override
     public void deleteIncomeSource(Long id) {
         IncomeSource source = incomeSourceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + id));
 
         incomeSourceRepository.delete(source);
     }
@@ -60,7 +62,7 @@ public class IncomeSourceServiceImpl implements IncomeSourceService {
     @Override
     public IncomeSource getIncomeSourceById(Long id) {
         return incomeSourceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + id));
     }
 
     @Override

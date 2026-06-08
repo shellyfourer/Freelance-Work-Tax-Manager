@@ -1,0 +1,18 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: tax-manager-backend-e2e
+    ports:
+      - "8081:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:8081"
+    image: tax-manager-frontend-e2e
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
