@@ -10,14 +10,52 @@ interface IncomeSourceListProps {
   onAdd: () => void;
 }
 
-export function IncomeSourceList({
-  sources,
-  isLoading,
+function HourlyRateCell({ source }: { source: IncomeSource }) {
+  if (source.hourlyRate == null) return <span className="italic text-muted-foreground">—</span>;
+  return (
+    <>{`€${source.hourlyRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/hr`}</>
+  );
+}
+
+function DescriptionCell({ source }: { source: IncomeSource }) {
+  return (
+    <span className="block truncate">
+      {source.description ?? <span className="italic text-muted-foreground">—</span>}
+    </span>
+  );
+}
+
+function ActionsCell({
+  source,
   onEdit,
   onDelete,
-  onAdd,
-}: IncomeSourceListProps) {
-  const columns: Column<IncomeSource>[] = [
+}: {
+  source: IncomeSource;
+  onEdit: (s: IncomeSource) => void;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => onEdit(source)}>
+        Edit
+      </Button>
+      <Button
+        variant="destructive"
+        size="sm"
+        className="cursor-pointer border-destructive bg-background"
+        onClick={() => onDelete(source.sourceId)}
+      >
+        Delete
+      </Button>
+    </div>
+  );
+}
+
+function getColumns(
+  onEdit: (s: IncomeSource) => void,
+  onDelete: (id: number) => void,
+): Column<IncomeSource>[] {
+  return [
     {
       key: "name",
       header: "Client Name",
@@ -33,45 +71,32 @@ export function IncomeSourceList({
     {
       key: "hourlyRate",
       header: "Hourly Rate",
-      cell: (s) =>
-        s.hourlyRate != null ? (
-          `€${s.hourlyRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/hr`
-        ) : (
-          <span className="italic text-muted-foreground">—</span>
-        ),
+      cell: (s) => <HourlyRateCell source={s} />,
       headerClassName: "whitespace-nowrap",
     },
     {
       key: "description",
       header: "Description",
-      cell: (s) => (
-        <span className="block truncate">
-          {s.description ?? <span className="italic text-muted-foreground">—</span>}
-        </span>
-      ),
+      cell: (s) => <DescriptionCell source={s} />,
       headerClassName: "w-full hidden sm:table-cell",
       cellClassName: "max-w-0 hidden sm:table-cell",
     },
     {
       key: "actions",
       header: "",
-      cell: (s) => (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => onEdit(s)}>
-            Edit
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="cursor-pointer border-destructive bg-background"
-            onClick={() => onDelete(s.sourceId)}
-          >
-            Delete
-          </Button>
-        </div>
-      ),
+      cell: (s) => <ActionsCell source={s} onEdit={onEdit} onDelete={onDelete} />,
     },
   ];
+}
+
+export function IncomeSourceList({
+  sources,
+  isLoading,
+  onEdit,
+  onDelete,
+  onAdd,
+}: IncomeSourceListProps) {
+  const columns = getColumns(onEdit, onDelete);
 
   return (
     <DataTable

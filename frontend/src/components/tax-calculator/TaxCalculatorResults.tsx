@@ -26,12 +26,14 @@ export function TaxCalculatorResults({
     ? `${((result.netIncome / result.grossIncome) * 100).toFixed(1)}% of your income`
     : "Your net income after tax";
 
-  const subtitleText =
-    result && submittedIncome
-      ? `Based on your income: ${CURRENCY}${parseFloat(submittedIncome).toLocaleString()}`
-      : isCalculating
-        ? "Processing your input…"
-        : "Results appear here after you enter information";
+  let subtitleText: string;
+  if (result && submittedIncome) {
+    subtitleText = `Based on your income: ${CURRENCY}${Number.parseFloat(submittedIncome).toLocaleString()}`;
+  } else if (isCalculating) {
+    subtitleText = "Processing your input…";
+  } else {
+    subtitleText = "Results appear here after you enter information";
+  }
   const subtitleItalic = !result || !submittedIncome;
 
   return (

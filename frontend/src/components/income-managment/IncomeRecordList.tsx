@@ -11,14 +11,45 @@ interface IncomeRecordListProps {
   onAdd: () => void;
 }
 
-export function IncomeRecordList({
-  records,
-  isLoading,
+function DescriptionCell({ record }: { record: IncomeRecord }) {
+  return (
+    <span className="block truncate">
+      {record.description ?? <span className="italic text-muted-foreground">—</span>}
+    </span>
+  );
+}
+
+function ActionsCell({
+  record,
   onEdit,
   onDelete,
-  onAdd,
-}: IncomeRecordListProps) {
-  const columns: Column<IncomeRecord>[] = [
+}: {
+  record: IncomeRecord;
+  onEdit: (r: IncomeRecord) => void;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => onEdit(record)}>
+        Edit
+      </Button>
+      <Button
+        variant="destructive"
+        size="sm"
+        className="cursor-pointer border-destructive bg-background"
+        onClick={() => onDelete(record.incomeId)}
+      >
+        Delete
+      </Button>
+    </div>
+  );
+}
+
+function getColumns(
+  onEdit: (r: IncomeRecord) => void,
+  onDelete: (id: number) => void,
+): Column<IncomeRecord>[] {
+  return [
     {
       key: "incomeDate",
       header: "Date",
@@ -40,34 +71,26 @@ export function IncomeRecordList({
     {
       key: "description",
       header: "Description",
-      cell: (r) => (
-        <span className="block truncate">
-          {r.description ?? <span className="italic text-muted-foreground">—</span>}
-        </span>
-      ),
+      cell: (r) => <DescriptionCell record={r} />,
       headerClassName: "w-full hidden sm:table-cell",
       cellClassName: "max-w-0 hidden sm:table-cell",
     },
     {
       key: "actions",
       header: "",
-      cell: (r) => (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => onEdit(r)}>
-            Edit
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="cursor-pointer border-destructive bg-background"
-            onClick={() => onDelete(r.incomeId)}
-          >
-            Delete
-          </Button>
-        </div>
-      ),
+      cell: (r) => <ActionsCell record={r} onEdit={onEdit} onDelete={onDelete} />,
     },
   ];
+}
+
+export function IncomeRecordList({
+  records,
+  isLoading,
+  onEdit,
+  onDelete,
+  onAdd,
+}: IncomeRecordListProps) {
+  const columns = getColumns(onEdit, onDelete);
 
   return (
     <DataTable

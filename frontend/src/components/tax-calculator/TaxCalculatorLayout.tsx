@@ -80,8 +80,8 @@ export function TaxCalculatorLayout() {
     }
 
     debounceRef.current = setTimeout(() => {
+      if (wsRef.current?.readyState !== WebSocket.OPEN) return;
       const ws = wsRef.current;
-      if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
       setIsCalculating(true);
       setError(null);

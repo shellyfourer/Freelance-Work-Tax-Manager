@@ -16,6 +16,8 @@ import java.util.List;
 @Service
 public class IncomeRecordServiceImpl implements IncomeRecordService {
 
+    private static final String INCOME_RECORD_NOT_FOUND = "Income record not found with ID: ";
+
     private final IncomeRecordRepository incomeRecordRepository;
     private final IncomeSourceRepository incomeSourceRepository;
     private final UserRepository userRepository;
@@ -46,7 +48,7 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
     @Override
     public IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId) {
         IncomeRecord income = incomeRecordRepository.findById(incomeRecord.getIncomeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + incomeRecord.getIncomeId()));
+                .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + incomeRecord.getIncomeId()));
 
         IncomeSource source = incomeSourceRepository.findById(incomeSourceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + incomeSourceId));
@@ -64,7 +66,7 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
     @Override
     public void deleteIncomeRecord(Long id) {
         IncomeRecord income = incomeRecordRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id));
 
         incomeRecordRepository.delete(income);
     }
@@ -72,7 +74,7 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
     @Override
     public IncomeRecord getIncomeRecordById(Long id) {
         return incomeRecordRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Income record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id));
     }
 
     @Override
@@ -80,18 +82,18 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
         return incomeRecordRepository.findByUserUserId(userId);
     }
 
-    private void validateHoursAndAmount(IncomeRecord record, IncomeSource source) {
+    private void validateHoursAndAmount(IncomeRecord incomeEntry, IncomeSource source) {
         if (source.getPaymentType() == PaymentType.HOURLY) {
-            if (record.getHoursWorked() == null || record.getHoursWorked().signum() <= 0) {
+            if (incomeEntry.getHoursWorked() == null || incomeEntry.getHoursWorked().signum() <= 0) {
                 throw new IllegalArgumentException("Hours worked is required for HOURLY income sources");
             }
-            BigDecimal expected = record.getHoursWorked().multiply(source.getHourlyRate());
-            BigDecimal diff = record.getAmount().subtract(expected).abs();
+            BigDecimal expected = incomeEntry.getHoursWorked().multiply(source.getHourlyRate());
+            BigDecimal diff = incomeEntry.getAmount().subtract(expected).abs();
             if (diff.compareTo(new BigDecimal("0.01")) > 0) {
                 throw new IllegalArgumentException("Amount does not match hours worked * hourly rate");
             }
         } else if (source.getPaymentType() == PaymentType.FIXED) {
-            record.setHoursWorked(null);
+            incomeEntry.setHoursWorked(null);
         }
     }
 }

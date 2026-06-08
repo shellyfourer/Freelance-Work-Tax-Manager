@@ -50,12 +50,12 @@ class IncomeRecordRepositoryTest {
     @Test
     void findByUserUserId_returnsRecordsForCorrectUser() {
         // Arrange
-        IncomeRecord record = new IncomeRecord();
-        record.setUser(user);
-        record.setIncomeSource(incomeSource);
-        record.setAmount(new BigDecimal("1000.00"));
-        record.setIncomeDate(LocalDate.of(2026, 1, 1));
-        incomeRecordRepository.save(record);
+        IncomeRecord incomeRecord = new IncomeRecord();
+        incomeRecord.setUser(user);
+        incomeRecord.setIncomeSource(incomeSource);
+        incomeRecord.setAmount(new BigDecimal("1000.00"));
+        incomeRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
+        incomeRecordRepository.save(incomeRecord);
 
         // Act
         List<IncomeRecord> results = incomeRecordRepository.findByUserUserId(user.getUserId());
@@ -85,12 +85,12 @@ class IncomeRecordRepositoryTest {
     @Test
     void findByUserUserId_doesNotReturnOtherUsersRecords() {
         // Arrange — record belongs to default user
-        IncomeRecord record = new IncomeRecord();
-        record.setUser(user);
-        record.setIncomeSource(incomeSource);
-        record.setAmount(new BigDecimal("1000.00"));
-        record.setIncomeDate(LocalDate.of(2026, 1, 1));
-        incomeRecordRepository.save(record);
+        IncomeRecord incomeRecord = new IncomeRecord();
+        incomeRecord.setUser(user);
+        incomeRecord.setIncomeSource(incomeSource);
+        incomeRecord.setAmount(new BigDecimal("1000.00"));
+        incomeRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
+        incomeRecordRepository.save(incomeRecord);
 
         // create second user
         User otherUser = new User();

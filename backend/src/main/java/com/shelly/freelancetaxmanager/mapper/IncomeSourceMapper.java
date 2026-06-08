@@ -6,6 +6,8 @@ import com.shelly.freelancetaxmanager.entity.IncomeSource;
 
 public class IncomeSourceMapper {
 
+    private IncomeSourceMapper() {}
+
     public static IncomeSource toEntity(IncomeSourceRequestDto dto) {
         IncomeSource source = new IncomeSource();
         source.setName(dto.name());
