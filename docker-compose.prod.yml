@@ -2,8 +2,7 @@ services:
   backend:
     image: shellyfourer/freelance-tax-manager-backend:latest
     container_name: tax-manager-backend
-    ports:
-      - "8080:8080"
+    network_mode: "host"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_USERNAME=${DB_USERNAME}
