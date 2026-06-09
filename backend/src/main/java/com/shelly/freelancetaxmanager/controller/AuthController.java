@@ -1,15 +1,15 @@
 package com.shelly.freelancetaxmanager.controller;
 
+import com.shelly.freelancetaxmanager.dto.UserSetupRequestDto;
 import com.shelly.freelancetaxmanager.entity.User;
 import com.shelly.freelancetaxmanager.service.UserService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -23,6 +23,15 @@ public class AuthController {
 
     public AuthController(UserService userService) {
         this.userService = userService;
+    }
+
+    @PostMapping("/setup")
+    public ResponseEntity<Void> setup(
+            @AuthenticationPrincipal OidcUser oidcUser,
+            @Valid @RequestBody UserSetupRequestDto dto
+    ) {
+        userService.setup(oidcUser.getSubject(), dto.country(), dto.currency());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

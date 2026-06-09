@@ -47,4 +47,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByGoogleId(googleId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
+
+    @Override
+    public void setup(String googleId, String country, String currency) {
+        User user = findByGoogleId(googleId);
+        user.setCountry(country);
+        user.setCurrency(currency);
+        userRepository.save(user);
+        log.info("User setup complete: {}", user.getEmail());
+    }
 }
