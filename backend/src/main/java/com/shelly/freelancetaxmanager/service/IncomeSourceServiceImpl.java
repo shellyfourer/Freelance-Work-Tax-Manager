@@ -5,7 +5,8 @@ import com.shelly.freelancetaxmanager.entity.User;
 import com.shelly.freelancetaxmanager.enums.PaymentType;
 import com.shelly.freelancetaxmanager.exception.ResourceNotFoundException;
 import com.shelly.freelancetaxmanager.repository.IncomeSourceRepository;
-import com.shelly.freelancetaxmanager.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,61 +14,61 @@ import java.util.List;
 @Service
 public class IncomeSourceServiceImpl implements IncomeSourceService {
 
+    private static final Logger log = LoggerFactory.getLogger(IncomeSourceServiceImpl.class);
     private static final String INCOME_SOURCE_NOT_FOUND = "Income source not found with ID: ";
 
     private final IncomeSourceRepository incomeSourceRepository;
-    private final UserRepository userRepository;
 
-    public IncomeSourceServiceImpl(IncomeSourceRepository incomeSourceRepository, UserRepository userRepository) {
+    public IncomeSourceServiceImpl(IncomeSourceRepository incomeSourceRepository) {
         this.incomeSourceRepository = incomeSourceRepository;
-        this.userRepository = userRepository;
     }
 
     @Override
-    public IncomeSource createIncomeSource(IncomeSource incomeSource) {
-
-        User defaultUser = userRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No default user found")); // way for us to unwrap the container since findFirst() returns optional
-
+    public IncomeSource createIncomeSource(IncomeSource incomeSource, User user) {
         validatePaymentType(incomeSource);
-        incomeSource.setUser(defaultUser);
-
-        return incomeSourceRepository.save(incomeSource);
+        incomeSource.setUser(user);
+        IncomeSource saved = incomeSourceRepository.save(incomeSource);
+        log.info("Income source created: id={}, user={}", saved.getSourceId(), user.getEmail());
+        return saved;
     }
 
     @Override
-    public IncomeSource updateIncomeSource(IncomeSource incomeSource) {
-        IncomeSource source = incomeSourceRepository.findById(incomeSource.getSourceId())
-                .orElseThrow(() -> new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + incomeSource.getSourceId()));
-
+    public IncomeSource updateIncomeSource(IncomeSource incomeSource, User user) {
+        IncomeSource source = getOwnedSource(incomeSource.getSourceId(), user);
         source.setName(incomeSource.getName());
         source.setDescription(incomeSource.getDescription());
         source.setPaymentType(incomeSource.getPaymentType());
         source.setHourlyRate(incomeSource.getHourlyRate());
         validatePaymentType(source);
-
+        log.info("Income source updated: id={}, user={}", source.getSourceId(), user.getEmail());
         return incomeSourceRepository.save(source);
     }
 
     @Override
-    public void deleteIncomeSource(Long id) {
+    public void deleteIncomeSource(Long id, User user) {
+        IncomeSource source = getOwnedSource(id, user);
+        incomeSourceRepository.delete(source);
+        log.info("Income source deleted: id={}, user={}", id, user.getEmail());
+    }
+
+    @Override
+    public IncomeSource getIncomeSourceById(Long id, User user) {
+        return getOwnedSource(id, user);
+    }
+
+    @Override
+    public List<IncomeSource> getIncomeSourcesByUser(User user) {
+        return incomeSourceRepository.findByUserUserId(user.getUserId());
+    }
+
+    private IncomeSource getOwnedSource(Long id, User user) {
         IncomeSource source = incomeSourceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + id));
-
-        incomeSourceRepository.delete(source);
-    }
-
-    @Override
-    public IncomeSource getIncomeSourceById(Long id) {
-        return incomeSourceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + id));
-    }
-
-    @Override
-    public List<IncomeSource> getIncomeSourcesByUser(Long userId) {
-        return incomeSourceRepository.findByUserUserId(userId);
+        if (!source.getUser().getUserId().equals(user.getUserId())) {
+            log.warn("Access violation: user {} attempted to access income source {}", user.getEmail(), id);
+            throw new ResourceNotFoundException(INCOME_SOURCE_NOT_FOUND + id);
+        }
+        return source;
     }
 
     private void validatePaymentType(IncomeSource source) {
@@ -80,4 +81,3 @@ public class IncomeSourceServiceImpl implements IncomeSourceService {
         }
     }
 }
-
