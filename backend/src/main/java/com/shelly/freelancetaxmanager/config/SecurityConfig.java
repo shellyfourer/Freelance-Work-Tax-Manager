@@ -1,5 +1,6 @@
 package com.shelly.freelancetaxmanager.config;
 
+import com.shelly.freelancetaxmanager.service.OAuth2UserServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

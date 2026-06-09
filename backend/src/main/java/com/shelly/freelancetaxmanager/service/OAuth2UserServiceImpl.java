@@ -1,7 +1,5 @@
-package com.shelly.freelancetaxmanager.config;
+package com.shelly.freelancetaxmanager.service;
 
-import com.shelly.freelancetaxmanager.entity.User;
-import com.shelly.freelancetaxmanager.service.UserService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
