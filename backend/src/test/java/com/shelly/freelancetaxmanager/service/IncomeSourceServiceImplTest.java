@@ -5,7 +5,6 @@ import com.shelly.freelancetaxmanager.entity.User;
 import com.shelly.freelancetaxmanager.enums.PaymentType;
 import com.shelly.freelancetaxmanager.exception.ResourceNotFoundException;
 import com.shelly.freelancetaxmanager.repository.IncomeSourceRepository;
-import com.shelly.freelancetaxmanager.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +24,6 @@ import static org.mockito.Mockito.when;
 public class IncomeSourceServiceImplTest {
 
     @Mock private IncomeSourceRepository incomeSourceRepository;
-    @Mock private UserRepository userRepository;
     @InjectMocks private IncomeSourceServiceImpl incomeSourceService;
 
     private User user;
@@ -35,6 +32,7 @@ public class IncomeSourceServiceImplTest {
     @BeforeEach
     void setUp() {
         user = new User();
+        user.setUserId(1L);
         user.setName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
@@ -48,15 +46,11 @@ public class IncomeSourceServiceImplTest {
     }
 
     @Test
-    void createIncomeSource_savesSourceWithDefaultUser() {
-        // Arrange
-        when(userRepository.findAll()).thenReturn(List.of(user));
+    void createIncomeSource_savesSourceWithUser() {
         when(incomeSourceRepository.save(incomeSource)).thenReturn(incomeSource);
 
-        // Act
-        IncomeSource result = incomeSourceService.createIncomeSource(incomeSource);
+        IncomeSource result = incomeSourceService.createIncomeSource(incomeSource, user);
 
-        // Assert
         assertThat(result.getUser()).isEqualTo(user);
         assertThat(result.getName()).isEqualTo("Acme Corp");
         assertThat(result.getPaymentType()).isEqualTo(PaymentType.HOURLY);
@@ -65,7 +59,6 @@ public class IncomeSourceServiceImplTest {
 
     @Test
     void updateIncomeSource_overwritesNameAndPaymentType() {
-        // Arrange
         incomeSource.setSourceId(1L);
 
         IncomeSource updatedSource = new IncomeSource();
@@ -77,10 +70,8 @@ public class IncomeSourceServiceImplTest {
         when(incomeSourceRepository.findById(1L)).thenReturn(Optional.of(incomeSource));
         when(incomeSourceRepository.save(incomeSource)).thenReturn(incomeSource);
 
-        // Act
-        IncomeSource result = incomeSourceService.updateIncomeSource(updatedSource);
+        IncomeSource result = incomeSourceService.updateIncomeSource(updatedSource, user);
 
-        // Assert
         assertThat(result.getName()).isEqualTo("Globex Corp");
         assertThat(result.getDescription()).isEqualTo("Updated description");
         assertThat(result.getPaymentType()).isEqualTo(PaymentType.FIXED);
@@ -88,55 +79,43 @@ public class IncomeSourceServiceImplTest {
 
     @Test
     void deleteIncomeSource_deletesSource() {
-        // Arrange
         incomeSource.setSourceId(1L);
         when(incomeSourceRepository.findById(1L)).thenReturn(Optional.of(incomeSource));
 
-        // Act
-        incomeSourceService.deleteIncomeSource(1L);
+        incomeSourceService.deleteIncomeSource(1L, user);
 
-        // Assert
         verify(incomeSourceRepository).delete(incomeSource);
     }
 
     @Test
     void deleteIncomeSource_throwsWhenNotFound() {
-        // Arrange
         when(incomeSourceRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Assert
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> incomeSourceService.deleteIncomeSource(99L)
+                () -> incomeSourceService.deleteIncomeSource(99L, user)
         );
     }
 
     @Test
     void createIncomeSource_throwsWhenHourlyRateIsMissingForHourlyType() {
-        // Arrange
         incomeSource.setPaymentType(PaymentType.HOURLY);
         incomeSource.setHourlyRate(null);
-        when(userRepository.findAll()).thenReturn(List.of(user));
 
-        // Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> incomeSourceService.createIncomeSource(incomeSource)
+                () -> incomeSourceService.createIncomeSource(incomeSource, user)
         );
     }
 
     @Test
     void createIncomeSource_nullifiesHourlyRateForFixedType() {
-        // Arrange
         incomeSource.setPaymentType(PaymentType.FIXED);
-        incomeSource.setHourlyRate(new BigDecimal("50.00")); // client sent a value - should be ignored
-        when(userRepository.findAll()).thenReturn(List.of(user));
+        incomeSource.setHourlyRate(new BigDecimal("50.00"));
         when(incomeSourceRepository.save(incomeSource)).thenReturn(incomeSource);
 
-        // Act
-        IncomeSource result = incomeSourceService.createIncomeSource(incomeSource);
+        IncomeSource result = incomeSourceService.createIncomeSource(incomeSource, user);
 
-        // Assert
         assertThat(result.getHourlyRate()).isNull();
     }
 }
