@@ -3,7 +3,7 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 
-import { getCurrentUser, redirectToGoogleAuth } from "@/lib/api/user";
+import { getCurrentUser } from "@/lib/api/user";
 import type { User } from "@/lib/types/user";
 
 /*
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getCurrentUser()
       .then((user) => {
         if (!user) {
-          redirectToGoogleAuth();
+          router.push("/login");
           return;
         }
         if (!user.setupComplete) {
@@ -39,13 +39,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         setUser(user);
+        setIsLoading(false);
       })
-      .finally(() => setIsLoading(false));
+      .catch(() => {
+        router.push("/login");
+      });
   }, []);
 
   return (
     //AuthContext.Provider is generated auto when we call CreateContext
-    <AuthContext.Provider value={{ user, isLoading }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isLoading }}>
+      {isLoading ? null : children}
+    </AuthContext.Provider>
   );
 }
 

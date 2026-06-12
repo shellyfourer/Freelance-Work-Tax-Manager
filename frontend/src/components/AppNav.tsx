@@ -16,7 +16,7 @@ export function AppNav() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
+return (
     <header className="sticky top-0 z-50 bg-sidebar border-b border-sidebar-border">
       <div className="flex items-center justify-between w-full max-w-300 mx-auto px-4 md:px-8 h-14">
         {/* User */}
