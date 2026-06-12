@@ -6,7 +6,7 @@ const today = new Date().toISOString().split("T")[0];
 test.describe.serial("User journey", () => {
   let page!: Page;
 
-  test.beforeAll(async ({ browser, request }) => {
+  test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
 
     // Disable CSS animations so Radix dropdowns are stable and clicks are reliable
@@ -17,16 +17,23 @@ test.describe.serial("User journey", () => {
       document.head.appendChild(style);
     });
 
-    const recordsRes = await request.get(`${BACKEND}/api/income-records?userId=1`);
-    const records = await recordsRes.json();
-    for (const r of records) {
-      await request.delete(`${BACKEND}/api/income-records/${r.incomeId}`);
+    // Authenticate as the e2e test user (dev-only endpoint)
+    const loginRes = await page.request.post(`${BACKEND}/api/test/login`);
+    if (!loginRes.ok()) {
+      throw new Error(`Test login failed (${loginRes.status()}) — is the backend running with the dev profile?`);
     }
 
-    const sourcesRes = await request.get(`${BACKEND}/api/clients?userId=1`);
+    // Clean up existing data using the authenticated session
+    const recordsRes = await page.request.get(`${BACKEND}/api/income-records`);
+    const records = await recordsRes.json();
+    for (const r of records) {
+      await page.request.delete(`${BACKEND}/api/income-records/${r.incomeId}`);
+    }
+
+    const sourcesRes = await page.request.get(`${BACKEND}/api/clients`);
     const sources = await sourcesRes.json();
     for (const s of sources) {
-      await request.delete(`${BACKEND}/api/clients/${s.sourceId}`);
+      await page.request.delete(`${BACKEND}/api/clients/${s.sourceId}`);
     }
   });
 
@@ -36,7 +43,7 @@ test.describe.serial("User journey", () => {
 
   // Step 1: empty state
 
-  test("sees empty client dashboard", async () => {
+  test("sees  client dashboard", async () => {
     await page.goto("/clients", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: "Clients" })).toBeVisible();
     await expect(
