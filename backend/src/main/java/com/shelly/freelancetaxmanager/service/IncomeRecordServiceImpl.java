@@ -7,7 +7,8 @@ import com.shelly.freelancetaxmanager.enums.PaymentType;
 import com.shelly.freelancetaxmanager.exception.ResourceNotFoundException;
 import com.shelly.freelancetaxmanager.repository.IncomeRecordRepository;
 import com.shelly.freelancetaxmanager.repository.IncomeSourceRepository;
-import com.shelly.freelancetaxmanager.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,70 +17,77 @@ import java.util.List;
 @Service
 public class IncomeRecordServiceImpl implements IncomeRecordService {
 
+    private static final Logger log = LoggerFactory.getLogger(IncomeRecordServiceImpl.class);
     private static final String INCOME_RECORD_NOT_FOUND = "Income record not found with ID: ";
 
     private final IncomeRecordRepository incomeRecordRepository;
     private final IncomeSourceRepository incomeSourceRepository;
-    private final UserRepository userRepository;
 
-    public IncomeRecordServiceImpl(IncomeRecordRepository incomeRecordRepository, IncomeSourceRepository incomeSourceRepository, UserRepository userRepository) {
+    public IncomeRecordServiceImpl(IncomeRecordRepository incomeRecordRepository, IncomeSourceRepository incomeSourceRepository) {
         this.incomeRecordRepository = incomeRecordRepository;
         this.incomeSourceRepository = incomeSourceRepository;
-        this.userRepository = userRepository;
     }
 
     @Override
-    public IncomeRecord createIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId) {
-        User defaultUser = userRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No default user found")); // way for us to unwrap the container since findFirst() returns optional
-
-        IncomeSource source = incomeSourceRepository.findById(incomeSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + incomeSourceId));
-
+    public IncomeRecord createIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId, User user) {
+        IncomeSource source = getOwnedSource(incomeSourceId, user);
         validateHoursAndAmount(incomeRecord, source);
-        incomeRecord.setUser(defaultUser);
+        incomeRecord.setUser(user);
         incomeRecord.setIncomeSource(source);
-
-        return incomeRecordRepository.save(incomeRecord);
+        IncomeRecord saved = incomeRecordRepository.save(incomeRecord);
+        log.info("Income record created: id={}, user={}", saved.getIncomeId(), user.getEmail());
+        return saved;
     }
 
     @Override
-    public IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId) {
-        IncomeRecord income = incomeRecordRepository.findById(incomeRecord.getIncomeId())
-                .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + incomeRecord.getIncomeId()));
-
-        IncomeSource source = incomeSourceRepository.findById(incomeSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + incomeSourceId));
-
+    public IncomeRecord updateIncomeRecord(IncomeRecord incomeRecord, Long incomeSourceId, User user) {
+        IncomeRecord existing = getOwnedRecord(incomeRecord.getIncomeId(), user);
+        IncomeSource source = getOwnedSource(incomeSourceId, user);
         validateHoursAndAmount(incomeRecord, source);
-        income.setAmount(incomeRecord.getAmount());
-        income.setIncomeDate(incomeRecord.getIncomeDate());
-        income.setDescription(incomeRecord.getDescription());
-        income.setHoursWorked(incomeRecord.getHoursWorked());
-        income.setIncomeSource(source);
-
-        return incomeRecordRepository.save(income);
+        existing.setAmount(incomeRecord.getAmount());
+        existing.setIncomeDate(incomeRecord.getIncomeDate());
+        existing.setDescription(incomeRecord.getDescription());
+        existing.setHoursWorked(incomeRecord.getHoursWorked());
+        existing.setIncomeSource(source);
+        log.info("Income record updated: id={}, user={}", existing.getIncomeId(), user.getEmail());
+        return incomeRecordRepository.save(existing);
     }
 
     @Override
-    public void deleteIncomeRecord(Long id) {
-        IncomeRecord income = incomeRecordRepository.findById(id)
+    public void deleteIncomeRecord(Long id, User user) {
+        IncomeRecord record = getOwnedRecord(id, user);
+        incomeRecordRepository.delete(record);
+        log.info("Income record deleted: id={}, user={}", id, user.getEmail());
+    }
+
+    @Override
+    public IncomeRecord getIncomeRecordById(Long id, User user) {
+        return getOwnedRecord(id, user);
+    }
+
+    @Override
+    public List<IncomeRecord> getIncomeRecordsByUser(User user) {
+        return incomeRecordRepository.findByUserUserId(user.getUserId());
+    }
+
+    private IncomeRecord getOwnedRecord(Long id, User user) {
+        IncomeRecord record = incomeRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id));
-
-        incomeRecordRepository.delete(income);
+        if (!record.getUser().getUserId().equals(user.getUserId())) {
+            log.warn("Access violation: user {} attempted to access income record {}", user.getEmail(), id);
+            throw new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id);
+        }
+        return record;
     }
 
-    @Override
-    public IncomeRecord getIncomeRecordById(Long id) {
-        return incomeRecordRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id));
-    }
-
-    @Override
-    public List<IncomeRecord> getIncomeRecordsByUser(Long userId) {
-        return incomeRecordRepository.findByUserUserId(userId);
+    private IncomeSource getOwnedSource(Long id, User user) {
+        IncomeSource source = incomeSourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Income source not found with ID: " + id));
+        if (!source.getUser().getUserId().equals(user.getUserId())) {
+            log.warn("Access violation: user {} attempted to access income source {}", user.getEmail(), id);
+            throw new ResourceNotFoundException("Income source not found with ID: " + id);
+        }
+        return source;
     }
 
     private void validateHoursAndAmount(IncomeRecord incomeEntry, IncomeSource source) {

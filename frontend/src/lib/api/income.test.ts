@@ -42,6 +42,7 @@ describe("createIncomeRecord", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockRequest),
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();
@@ -71,16 +72,18 @@ describe("createIncomeRecord", () => {
 });
 
 describe("getIncomeRecordsByUser", () => {
-  test("calls GET /api/income-records?userId={id} with the correct URL", async () => {
+  test("calls GET /api/income-records with credentials", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([mockRecord]) }),
     );
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
-    await getIncomeRecordsByUser(1);
+    await getIncomeRecordsByUser();
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records?userId=1");
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records", {
+      credentials: "include",
+    });
 
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -92,7 +95,7 @@ describe("getIncomeRecordsByUser", () => {
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([mockRecord]) }),
     );
 
-    const result = await getIncomeRecordsByUser(1);
+    const result = await getIncomeRecordsByUser();
 
     expect(result).toEqual([mockRecord]);
 
@@ -102,7 +105,7 @@ describe("getIncomeRecordsByUser", () => {
   test("throws on a non-ok response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 
-    await expect(getIncomeRecordsByUser(1)).rejects.toThrow("Failed to fetch income records");
+    await expect(getIncomeRecordsByUser()).rejects.toThrow("Failed to fetch income records");
 
     vi.unstubAllGlobals();
   });
@@ -122,6 +125,7 @@ describe("updateIncomeRecord", () => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockRequest),
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();
@@ -161,6 +165,7 @@ describe("deleteIncomeRecord", () => {
 
     expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/income-records/1", {
       method: "DELETE",
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();

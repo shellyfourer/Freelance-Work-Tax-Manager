@@ -5,6 +5,11 @@ import com.shelly.freelancetaxmanager.entity.IncomeSource;
 import com.shelly.freelancetaxmanager.entity.User;
 import com.shelly.freelancetaxmanager.enums.PaymentType;
 import com.shelly.freelancetaxmanager.service.IncomeRecordService;
+import com.shelly.freelancetaxmanager.service.OAuth2UserServiceImpl;
+import com.shelly.freelancetaxmanager.service.UserService;
+import com.shelly.freelancetaxmanager.config.SecurityConfig;
+import org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration;
+import org.springframework.context.annotation.Import;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +26,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(IncomeRecordController.class)
+@WebMvcTest(value = IncomeRecordController.class, excludeAutoConfiguration = OAuth2ClientWebSecurityAutoConfiguration.class)
+@Import(SecurityConfig.class)
 class IncomeRecordControllerTest {
 
     @Autowired
@@ -33,11 +40,19 @@ class IncomeRecordControllerTest {
     @MockitoBean
     private IncomeRecordService incomeRecordService;
 
+    @MockitoBean
+    private UserService userService;
+
+    @MockitoBean
+    private OAuth2UserServiceImpl oAuth2UserService;
+
+    private User user;
     private IncomeRecord incomeRecord;
 
     @BeforeEach
     void setUp() {
-        User user = new User();
+        user = new User();
+        user.setUserId(1L);
         user.setName("Default User");
         user.setEmail("default@test.com");
         user.setCountry("LT");
@@ -55,13 +70,16 @@ class IncomeRecordControllerTest {
         incomeRecord.setIncomeDate(LocalDate.of(2026, 1, 1));
         incomeRecord.setUser(user);
         incomeRecord.setIncomeSource(incomeSource);
+
+        when(userService.findByGoogleId(any())).thenReturn(user);
     }
 
     @Test
     void createIncomeRecord_returns201_withValidInput() throws Exception {
-        when(incomeRecordService.createIncomeRecord(any(IncomeRecord.class), anyLong())).thenReturn(incomeRecord);
+        when(incomeRecordService.createIncomeRecord(any(IncomeRecord.class), anyLong(), any(User.class))).thenReturn(incomeRecord);
 
         mockMvc.perform(post("/api/income-records")
+                .with(oidcLogin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -79,6 +97,7 @@ class IncomeRecordControllerTest {
     @Test
     void createIncomeRecord_returns400_whenAmountIsNull() throws Exception {
         mockMvc.perform(post("/api/income-records")
+                .with(oidcLogin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -92,6 +111,7 @@ class IncomeRecordControllerTest {
     @Test
     void createIncomeRecord_returns400_whenAmountIsNegative() throws Exception {
         mockMvc.perform(post("/api/income-records")
+                .with(oidcLogin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -106,6 +126,7 @@ class IncomeRecordControllerTest {
     @Test
     void createIncomeRecord_returns400_whenIncomeSourceIdIsNull() throws Exception {
         mockMvc.perform(post("/api/income-records")
+                .with(oidcLogin())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -118,9 +139,10 @@ class IncomeRecordControllerTest {
 
     @Test
     void getIncomeRecordById_returns200_withValidId() throws Exception {
-        when(incomeRecordService.getIncomeRecordById(1L)).thenReturn(incomeRecord);
+        when(incomeRecordService.getIncomeRecordById(1L, user)).thenReturn(incomeRecord);
 
-        mockMvc.perform(get("/api/income-records/1"))
+        mockMvc.perform(get("/api/income-records/1")
+                .with(oidcLogin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.incomeId").value(1))
                 .andExpect(jsonPath("$.hoursWorked").value(10.00));
@@ -128,17 +150,19 @@ class IncomeRecordControllerTest {
 
     @Test
     void deleteIncomeRecord_returns204_withValidId() throws Exception {
-        doNothing().when(incomeRecordService).deleteIncomeRecord(1L);
+        doNothing().when(incomeRecordService).deleteIncomeRecord(1L, user);
 
-        mockMvc.perform(delete("/api/income-records/1"))
+        mockMvc.perform(delete("/api/income-records/1")
+                .with(oidcLogin()))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void getIncomeRecordsByUser_returns200_withValidUserId() throws Exception {
-        when(incomeRecordService.getIncomeRecordsByUser(1L)).thenReturn(List.of(incomeRecord));
+    void getIncomeRecordsByUser_returns200() throws Exception {
+        when(incomeRecordService.getIncomeRecordsByUser(any(User.class))).thenReturn(List.of(incomeRecord));
 
-        mockMvc.perform(get("/api/income-records").param("userId", "1"))
+        mockMvc.perform(get("/api/income-records")
+                .with(oidcLogin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].incomeId").value(1))
                 .andExpect(jsonPath("$[0].paymentType").value("HOURLY"));

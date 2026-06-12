@@ -38,6 +38,7 @@ describe("createIncomeSource", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockRequest),
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();
@@ -67,16 +68,18 @@ describe("createIncomeSource", () => {
 });
 
 describe("getIncomeSourcesByUser", () => {
-  test("calls GET /api/clients?userId={id} with the correct URL", async () => {
+  test("calls GET /api/clients with credentials", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([mockSource]) }),
     );
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
-    await getIncomeSourcesByUser(1);
+    await getIncomeSourcesByUser();
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/clients?userId=1");
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/clients", {
+      credentials: "include",
+    });
 
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -88,7 +91,7 @@ describe("getIncomeSourcesByUser", () => {
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([mockSource]) }),
     );
 
-    const result = await getIncomeSourcesByUser(1);
+    const result = await getIncomeSourcesByUser();
 
     expect(result).toEqual([mockSource]);
 
@@ -98,7 +101,7 @@ describe("getIncomeSourcesByUser", () => {
   test("throws on a non-ok response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 
-    await expect(getIncomeSourcesByUser(1)).rejects.toThrow("Failed to fetch income sources");
+    await expect(getIncomeSourcesByUser()).rejects.toThrow("Failed to fetch income sources");
 
     vi.unstubAllGlobals();
   });
@@ -114,7 +117,9 @@ describe("getIncomeSourceById", () => {
 
     await getIncomeSourceById(1);
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/clients/1");
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/clients/1", {
+      credentials: "include",
+    });
 
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
@@ -156,6 +161,7 @@ describe("updateIncomeSource", () => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockRequest),
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();
@@ -195,6 +201,7 @@ describe("deleteIncomeSource", () => {
 
     expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/clients/1", {
       method: "DELETE",
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();

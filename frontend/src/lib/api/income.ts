@@ -7,6 +7,7 @@ export async function createIncomeRecord(data: IncomeRecordRequest): Promise<Inc
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -16,8 +17,10 @@ export async function createIncomeRecord(data: IncomeRecordRequest): Promise<Inc
   return res.json();
 }
 
-export async function getIncomeRecordsByUser(userId: number): Promise<IncomeRecord[]> {
-  const res = await fetch(`${getBaseUrl()}/api/income-records?userId=${userId}`);
+export async function getIncomeRecordsByUser(): Promise<IncomeRecord[]> {
+  const res = await fetch(`${getBaseUrl()}/api/income-records`, {
+    credentials: "include",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch income records");
@@ -34,6 +37,7 @@ export async function updateIncomeRecord(
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -46,6 +50,7 @@ export async function updateIncomeRecord(
 export async function deleteIncomeRecord(id: number): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/income-records/${id}`, {
     method: "DELETE",
+    credentials: "include",
   });
 
   if (!res.ok) {

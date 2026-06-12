@@ -25,8 +25,6 @@ import type { IncomeSource, IncomeSourceRequest } from "@/lib/types/client";
 import { SummaryCard } from "@/components/shared/SummaryCard";
 import { calculateClientSummary, formatRate } from "@/lib/utils/clients";
 
-const DEFAULT_USER_ID = 1;
-
 export function ClientsLayout() {
   const [sources, setSources] = useState<IncomeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +38,7 @@ export function ClientsLayout() {
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   useEffect(() => {
-    getIncomeSourcesByUser(DEFAULT_USER_ID)
+    getIncomeSourcesByUser()
       .then(setSources)
       .catch(() => setLoadError("Failed to load clients. Please try again."))
       .finally(() => setIsLoading(false));

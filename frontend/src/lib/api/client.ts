@@ -7,6 +7,7 @@ export async function createIncomeSource(data: IncomeSourceRequest): Promise<Inc
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -16,8 +17,10 @@ export async function createIncomeSource(data: IncomeSourceRequest): Promise<Inc
   return res.json();
 }
 
-export async function getIncomeSourcesByUser(userId: number): Promise<IncomeSource[]> {
-  const res = await fetch(`${getBaseUrl()}/api/clients?userId=${userId}`);
+export async function getIncomeSourcesByUser(): Promise<IncomeSource[]> {
+  const res = await fetch(`${getBaseUrl()}/api/clients`, {
+    credentials: "include",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch income sources");
@@ -27,7 +30,9 @@ export async function getIncomeSourcesByUser(userId: number): Promise<IncomeSour
 }
 
 export async function getIncomeSourceById(id: number): Promise<IncomeSource> {
-  const res = await fetch(`${getBaseUrl()}/api/clients/${id}`);
+  const res = await fetch(`${getBaseUrl()}/api/clients/${id}`, {
+    credentials: "include",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch income source");
@@ -44,6 +49,7 @@ export async function updateIncomeSource(
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+    credentials: "include",
   });
 
   if (!res.ok) {
@@ -56,6 +62,7 @@ export async function updateIncomeSource(
 export async function deleteIncomeSource(id: number): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/clients/${id}`, {
     method: "DELETE",
+    credentials: "include",
   });
 
   if (!res.ok) {
