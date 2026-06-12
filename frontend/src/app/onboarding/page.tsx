@@ -105,7 +105,9 @@ export default function OnboardingPage() {
                 if (e.key === "ArrowDown") {
                   e.preventDefault();
                   if (!countryOpen) setCountryOpen(true);
-                  setCountryFocusedIndex((prev) => Math.min(prev + 1, filteredCountries.length - 1));
+                  setCountryFocusedIndex((prev) =>
+                    Math.min(prev + 1, filteredCountries.length - 1),
+                  );
                 } else if (e.key === "ArrowUp") {
                   e.preventDefault();
                   setCountryFocusedIndex((prev) => Math.max(prev - 1, 0));
@@ -146,7 +148,9 @@ export default function OnboardingPage() {
                   className={cn(
                     "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
                     country === c.value && "font-medium",
-                    (countryFocusedIndex !== -1 ? countryFocusedIndex === index : country === c.value) && "bg-accent",
+                    (countryFocusedIndex !== -1
+                      ? countryFocusedIndex === index
+                      : country === c.value) && "bg-accent",
                   )}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
@@ -190,13 +194,18 @@ export default function OnboardingPage() {
                 if (e.key === "ArrowDown") {
                   e.preventDefault();
                   if (!currencyOpen) setCurrencyOpen(true);
-                  setCurrencyFocusedIndex((prev) => Math.min(prev + 1, filteredCurrencies.length - 1));
+                  setCurrencyFocusedIndex((prev) =>
+                    Math.min(prev + 1, filteredCurrencies.length - 1),
+                  );
                 } else if (e.key === "ArrowUp") {
                   e.preventDefault();
                   setCurrencyFocusedIndex((prev) => Math.max(prev - 1, 0));
                 } else if (e.key === "Enter" && currencyOpen) {
                   e.preventDefault();
-                  if (currencyFocusedIndex >= 0 && currencyFocusedIndex < filteredCurrencies.length) {
+                  if (
+                    currencyFocusedIndex >= 0 &&
+                    currencyFocusedIndex < filteredCurrencies.length
+                  ) {
                     const c = filteredCurrencies[currencyFocusedIndex];
                     setCurrency(c.value);
                     setCurrencyQuery("");
@@ -231,7 +240,9 @@ export default function OnboardingPage() {
                   className={cn(
                     "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
                     currency === c.value && "font-medium",
-                    (currencyFocusedIndex !== -1 ? currencyFocusedIndex === index : currency === c.value) && "bg-accent",
+                    (currencyFocusedIndex !== -1
+                      ? currencyFocusedIndex === index
+                      : currency === c.value) && "bg-accent",
                   )}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {

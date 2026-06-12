@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,9 +22,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final OAuth2UserServiceImpl oAuth2UserService;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
-    public SecurityConfig(OAuth2UserServiceImpl oAuth2UserService) {
+    public SecurityConfig(OAuth2UserServiceImpl oAuth2UserService, ClientRegistrationRepository clientRegistrationRepository) {
         this.oAuth2UserService = oAuth2UserService;
+        this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
     @Bean
@@ -35,7 +40,10 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oAuth2UserService))
-                        .defaultSuccessUrl("/api/auth/me", true)
+                        .authorizationEndpoint(endpoint -> endpoint
+                                .authorizationRequestResolver(authorizationRequestResolver())
+                        )
+                        .defaultSuccessUrl("http://localhost:3000", true)
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")
@@ -48,13 +56,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    private OAuth2AuthorizationRequestResolver authorizationRequestResolver() {
+        DefaultOAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository, "/oauth2/authorization"
+        );
+        resolver.setAuthorizationRequestCustomizer(customizer ->
+                customizer.additionalParameters(params -> params.put("prompt", "select_account"))
+        );
+        return resolver;
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "http://145.220.72.106:3000"
+                "http://earnwise.duckdns.org:3000"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));

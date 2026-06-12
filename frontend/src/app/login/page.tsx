@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { googleAuthUrl } from "@/lib/api/user";
 
-
 export default function LoginPage() {
   return (
     <main className="flex flex-col items-center justify-center h-screen gap-8 px-4 md:px-8">
@@ -11,7 +10,8 @@ export default function LoginPage() {
           WELCOME TO YOUR FREELANCE TAX MANAGER
         </h1>
         <p className="text-caption text-muted-foreground text-center max-w-xs">
-          Track your income, manage clients, and stay on top of your tax obligations - all in one place.
+          Track your income, manage clients, and stay on top of your tax obligations - all in one
+          place.
         </p>
       </div>
 

@@ -15,7 +15,6 @@ const mockUser: User = {
   setupComplete: false,
 };
 
-
 describe("createCompleteUser", () => {
   test("calls POST /api/auth/setup with the correct URL and body", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
