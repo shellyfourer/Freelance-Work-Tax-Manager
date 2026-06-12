@@ -7,9 +7,7 @@ const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:80
 
 //but we need a way to navigate the user to the auth window
 
-export function redirectToGoogleAuth() {
-  window.location.href = `${getBaseUrl()}/oauth2/authorization/google`;
-}
+export const googleAuthUrl = `${getBaseUrl()}/oauth2/authorization/google`;
 
 export async function createCompleteUser(data: UserSetupRequest): Promise<void> {
   const res = await fetch(`${getBaseUrl()}/api/auth/setup`, {

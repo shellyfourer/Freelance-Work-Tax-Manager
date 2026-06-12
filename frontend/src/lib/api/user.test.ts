@@ -1,5 +1,5 @@
 import type { User, UserSetupRequest } from "@/lib/types/user";
-import { createCompleteUser, getCurrentUser, redirectToGoogleAuth } from "./user";
+import { createCompleteUser, getCurrentUser } from "./user";
 
 const mockRequest: UserSetupRequest = {
   country: "LT",
@@ -15,18 +15,6 @@ const mockUser: User = {
   setupComplete: false,
 };
 
-describe("redirectToGoogleAuth", () => {
-  test("sets window.location.href to the Google auth URL", () => {
-    vi.stubGlobal("location", { href: "" });
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
-
-    redirectToGoogleAuth();
-
-    expect(window.location.href).toBe("http://localhost:8080/oauth2/authorization/google");
-    vi.unstubAllEnvs();
-    vi.unstubAllGlobals();
-  });
-});
 
 describe("createCompleteUser", () => {
   test("calls POST /api/auth/setup with the correct URL and body", async () => {
