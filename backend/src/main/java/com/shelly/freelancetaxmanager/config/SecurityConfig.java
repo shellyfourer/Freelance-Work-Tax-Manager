@@ -1,6 +1,7 @@
 package com.shelly.freelancetaxmanager.config;
 
 import com.shelly.freelancetaxmanager.service.OAuth2UserServiceImpl;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,9 @@ public class SecurityConfig {
     private final OAuth2UserServiceImpl oAuth2UserService;
     private final ClientRegistrationRepository clientRegistrationRepository;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public SecurityConfig(OAuth2UserServiceImpl oAuth2UserService, ClientRegistrationRepository clientRegistrationRepository) {
         this.oAuth2UserService = oAuth2UserService;
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -43,7 +47,7 @@ public class SecurityConfig {
                         .authorizationEndpoint(endpoint -> endpoint
                                 .authorizationRequestResolver(authorizationRequestResolver())
                         )
-                        .defaultSuccessUrl("http://localhost:3000", true)
+                        .defaultSuccessUrl(frontendUrl, true)
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/")
