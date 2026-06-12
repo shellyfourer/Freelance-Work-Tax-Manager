@@ -28,6 +28,7 @@ import type { TaxCalculatorResult } from "@/lib/types/tax";
 import { calculateIncomeSummary } from "@/lib/utils/income";
 import { getIncomeSourcesByUser } from "@/lib/api/client";
 import type { IncomeSource } from "@/lib/types/client";
+import { useAuth } from "@/context/AuthContext";
 
 const MONTH_SHORT = [
   "Jan",
@@ -44,11 +45,21 @@ const MONTH_SHORT = [
   "Dec",
 ];
 
-function formatMoney(amount: number): string {
-  return `€${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function formatMoney(amount: number, currency: string): string {
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
 }
 
 export function IncomeLayout() {
+  const { user } = useAuth();
+  const currency = user?.currency ?? "EUR";
+  const countryName =
+    new Intl.DisplayNames(["en"], { type: "region" }).of(user?.country ?? "") ?? user?.country;
+
   const [records, setRecords] = useState<IncomeRecord[]>([]);
   const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -198,7 +209,9 @@ export function IncomeLayout() {
                 {currentYear} Income Overview
               </span>
               <span className="text-muted-foreground text-caption">·</span>
-              <span className="text-muted-foreground text-caption">Lithuania · EUR</span>
+              <span className="text-muted-foreground text-caption">
+                {countryName} · {currency}
+              </span>
             </div>
           </div>
           <Button onClick={openAdd} className="h-11 px-5 cursor-pointer">
@@ -222,12 +235,12 @@ export function IncomeLayout() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <SummaryCard
               label="Total Income So Far"
-              value={hasRecords ? formatMoney(totalIncome) : "—"}
+              value={hasRecords ? formatMoney(totalIncome, currency) : "—"}
               empty={!hasRecords}
             />
             <SummaryCard
               label="Average Monthly Income"
-              value={hasRecords ? formatMoney(monthlyAverage) : "—"}
+              value={hasRecords ? formatMoney(monthlyAverage, currency) : "—"}
               empty={!hasRecords}
             />
           </div>
@@ -241,17 +254,17 @@ export function IncomeLayout() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <SummaryCard
               label="Estimated Year-End Income"
-              value={hasRecords ? formatMoney(projectedYearEnd) : "—"}
+              value={hasRecords ? formatMoney(projectedYearEnd, currency) : "—"}
               empty={!hasRecords}
             />
             <SummaryCard
               label="Est. Tax to Set Aside"
-              value={taxResult ? formatMoney(taxResult.totalTax) : "—"}
+              value={taxResult ? formatMoney(taxResult.totalTax, currency) : "—"}
               empty={!taxResult}
             />
             <SummaryCard
               label="Est. Net Income"
-              value={taxResult ? formatMoney(taxResult.netIncome) : "—"}
+              value={taxResult ? formatMoney(taxResult.netIncome, currency) : "—"}
               prominent={true}
               empty={!taxResult}
             />

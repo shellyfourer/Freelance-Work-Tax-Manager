@@ -1,6 +1,7 @@
 package com.shelly.freelancetaxmanager.config;
 
 import com.shelly.freelancetaxmanager.websocket.TaxCalculationHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -13,6 +14,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     private final TaxCalculationHandler taxCalculationHandler;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public WebSocketConfig(TaxCalculationHandler taxCalculationHandler) {
         this.taxCalculationHandler = taxCalculationHandler;
     }
@@ -23,7 +27,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 .setAllowedOrigins(
                         "http://localhost:3000",
                         "http://localhost:3001",
-                        "http://145.220.72.106:3000"
+                        frontendUrl
                 );
     }
 }

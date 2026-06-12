@@ -7,6 +7,8 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 
   frontend:
     image: shellyfourer/freelance-tax-manager-frontend:latest
