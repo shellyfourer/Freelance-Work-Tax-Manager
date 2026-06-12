@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+
 
 const NAV_ITEMS = [
   { href: "/clients", label: "Client Management" },
@@ -15,16 +17,23 @@ const NAV_ITEMS = [
 export function AppNav() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useAuth();
+  const initials = user?.name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase();
 
-return (
+
+  return (
     <header className="sticky top-0 z-50 bg-sidebar border-b border-sidebar-border">
       <div className="flex items-center justify-between w-full max-w-300 mx-auto px-4 md:px-8 h-14">
         {/* User */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0 no-underline">
           <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-sidebar-primary border-[1.5px] border-sidebar-border">
-            <span className="text-caption text-sidebar-primary-foreground leading-none">DU</span>
+            <span className="text-caption text-sidebar-primary-foreground leading-none">{initials}</span>
           </div>
-          <span className="text-caption text-sidebar-foreground">Default User</span>
+          <span className="text-caption text-sidebar-foreground">{user?.name}</span>
         </Link>
 
         {/* Desktop navigation */}

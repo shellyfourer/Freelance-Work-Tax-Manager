@@ -29,7 +29,6 @@ import { calculateIncomeSummary } from "@/lib/utils/income";
 import { getIncomeSourcesByUser } from "@/lib/api/client";
 import type { IncomeSource } from "@/lib/types/client";
 
-const DEFAULT_USER_ID = 1;
 const MONTH_SHORT = [
   "Jan",
   "Feb",
@@ -65,7 +64,7 @@ export function IncomeLayout() {
   const [taxResult, setTaxResult] = useState<TaxCalculatorResult | null>(null);
 
   useEffect(() => {
-    Promise.all([getIncomeRecordsByUser(DEFAULT_USER_ID), getIncomeSourcesByUser(DEFAULT_USER_ID)])
+    Promise.all([getIncomeRecordsByUser(), getIncomeSourcesByUser()])
       .then(([records, sources]) => {
         setRecords(records);
         setIncomeSources(sources);
