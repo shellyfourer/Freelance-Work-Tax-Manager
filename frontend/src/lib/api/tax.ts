@@ -12,6 +12,7 @@ export async function calculateTax(input: TaxCalculatorInput): Promise<TaxCalcul
       period: input.period,
       country: input.country,
     }),
+    credentials: "include",
   });
 
   if (!res.ok) {

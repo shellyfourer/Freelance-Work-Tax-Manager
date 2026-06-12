@@ -34,6 +34,7 @@ describe("calculateTax", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ incomeAmount: 60000, period: "annual", country: "LT" }),
+      credentials: "include",
     });
 
     vi.unstubAllGlobals();
