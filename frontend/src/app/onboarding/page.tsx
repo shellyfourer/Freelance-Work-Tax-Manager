@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
@@ -14,22 +15,32 @@ const CURRENCIES = [{ value: "EUR", label: "EUR — Euro" }];
 
 const inputClass = "h-12 rounded-input border-[1.5px] border-border";
 
+interface FormValues {
+  country: string;
+  currency: string;
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
 
-  const [country, setCountry] = useState("");
   const [countryQuery, setCountryQuery] = useState("");
   const [countryOpen, setCountryOpen] = useState(false);
   const [countryFocusedIndex, setCountryFocusedIndex] = useState(-1);
 
-  const [currency, setCurrency] = useState("");
   const [currencyQuery, setCurrencyQuery] = useState("");
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [currencyFocusedIndex, setCurrencyFocusedIndex] = useState(-1);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting },
+  } = useForm<FormValues>({
+    defaultValues: { country: "", currency: "" },
+  });
 
   useEffect(() => {
     getCurrentUser().then((user) => {
@@ -50,20 +61,13 @@ export default function OnboardingPage() {
     c.label.toLowerCase().includes(currencyQuery.toLowerCase()),
   );
 
-  const countryLabel = COUNTRIES.find((c) => c.value === country)?.label ?? "";
-  const currencyLabel = CURRENCIES.find((c) => c.value === currency)?.label ?? "";
-
-  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsSubmitting(true);
+  async function onSubmit(values: FormValues) {
     setApiError(null);
     try {
-      await createCompleteUser({ country, currency });
+      await createCompleteUser({ country: values.country, currency: values.currency });
       router.push("/");
     } catch {
       setApiError("Failed to save your setup. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -76,188 +80,215 @@ export default function OnboardingPage() {
       isSubmitting={isSubmitting}
       isDirty={true}
       apiError={apiError}
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       onClose={() => router.push("/login")}
     >
       {/* Country */}
       <div className="flex flex-col gap-2">
         <Label className="text-caption">Country</Label>
-        <Popover open={countryOpen} onOpenChange={setCountryOpen}>
-          <PopoverAnchor asChild>
-            <Input
-              aria-label="Country"
-              autoComplete="off"
-              placeholder="Select country…"
-              className={inputClass}
-              value={countryOpen ? countryQuery : countryLabel}
-              onFocus={() => {
-                setCountryQuery("");
-                setCountryOpen(true);
-                setCountryFocusedIndex(-1);
-              }}
-              onChange={(e) => {
-                setCountryQuery(e.target.value);
-                setCountryOpen(true);
-                setCountryFocusedIndex(-1);
-                if (country) setCountry("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown") {
-                  e.preventDefault();
-                  if (!countryOpen) setCountryOpen(true);
-                  setCountryFocusedIndex((prev) =>
-                    Math.min(prev + 1, filteredCountries.length - 1),
-                  );
-                } else if (e.key === "ArrowUp") {
-                  e.preventDefault();
-                  setCountryFocusedIndex((prev) => Math.max(prev - 1, 0));
-                } else if (e.key === "Enter" && countryOpen) {
-                  e.preventDefault();
-                  if (countryFocusedIndex >= 0 && countryFocusedIndex < filteredCountries.length) {
-                    const c = filteredCountries[countryFocusedIndex];
-                    setCountry(c.value);
-                    setCountryQuery("");
-                    setCountryOpen(false);
-                    setCountryFocusedIndex(-1);
+        <Controller
+          name="country"
+          control={control}
+          rules={{ required: "Please select a country" }}
+          render={({ field, fieldState }) => (
+            <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+              <PopoverAnchor asChild>
+                <Input
+                  aria-label="Country"
+                  autoComplete="off"
+                  placeholder="Select country…"
+                  aria-invalid={!!fieldState.error}
+                  className={inputClass}
+                  value={
+                    countryOpen
+                      ? countryQuery
+                      : (COUNTRIES.find((c) => c.value === field.value)?.label ?? "")
                   }
-                } else if (e.key === "Escape") {
-                  setCountryQuery("");
-                  setCountryOpen(false);
-                  setCountryFocusedIndex(-1);
-                }
-              }}
-              onBlur={() => {
-                setTimeout(() => {
-                  setCountryQuery("");
-                  setCountryOpen(false);
-                  setCountryFocusedIndex(-1);
-                }, 150);
-              }}
-            />
-          </PopoverAnchor>
-          {countryOpen && filteredCountries.length > 0 && (
-            <PopoverContent
-              align="start"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-              className="p-1 w-[var(--radix-popover-trigger-width)]"
-            >
-              {filteredCountries.map((c, index) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  className={cn(
-                    "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
-                    country === c.value && "font-medium",
-                    (countryFocusedIndex !== -1
-                      ? countryFocusedIndex === index
-                      : country === c.value) && "bg-accent",
-                  )}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    setCountry(c.value);
+                  onFocus={() => {
                     setCountryQuery("");
-                    setCountryOpen(false);
+                    setCountryOpen(true);
                     setCountryFocusedIndex(-1);
                   }}
+                  onChange={(e) => {
+                    setCountryQuery(e.target.value);
+                    setCountryOpen(true);
+                    setCountryFocusedIndex(-1);
+                    if (field.value) field.onChange("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      if (!countryOpen) setCountryOpen(true);
+                      setCountryFocusedIndex((prev) =>
+                        Math.min(prev + 1, filteredCountries.length - 1),
+                      );
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setCountryFocusedIndex((prev) => Math.max(prev - 1, 0));
+                    } else if (e.key === "Enter" && countryOpen) {
+                      e.preventDefault();
+                      if (
+                        countryFocusedIndex >= 0 &&
+                        countryFocusedIndex < filteredCountries.length
+                      ) {
+                        const c = filteredCountries[countryFocusedIndex];
+                        field.onChange(c.value);
+                        setCountryQuery("");
+                        setCountryOpen(false);
+                        setCountryFocusedIndex(-1);
+                      }
+                    } else if (e.key === "Escape") {
+                      setCountryQuery("");
+                      setCountryOpen(false);
+                      setCountryFocusedIndex(-1);
+                    }
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setCountryQuery("");
+                      setCountryOpen(false);
+                      setCountryFocusedIndex(-1);
+                    }, 150);
+                  }}
+                />
+              </PopoverAnchor>
+              {countryOpen && filteredCountries.length > 0 && (
+                <PopoverContent
+                  align="start"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  className="p-1 w-[var(--radix-popover-trigger-width)]"
                 >
-                  {c.label}
-                </button>
-              ))}
-            </PopoverContent>
+                  {filteredCountries.map((c, index) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
+                        field.value === c.value && "font-medium",
+                        (countryFocusedIndex !== -1
+                          ? countryFocusedIndex === index
+                          : field.value === c.value) && "bg-accent",
+                      )}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        field.onChange(c.value);
+                        setCountryQuery("");
+                        setCountryOpen(false);
+                        setCountryFocusedIndex(-1);
+                      }}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </PopoverContent>
+              )}
+            </Popover>
           )}
-        </Popover>
+        />
       </div>
 
       {/* Currency */}
       <div className="flex flex-col gap-2">
         <Label className="text-caption">Currency</Label>
-        <Popover open={currencyOpen} onOpenChange={setCurrencyOpen}>
-          <PopoverAnchor asChild>
-            <Input
-              aria-label="Currency"
-              autoComplete="off"
-              placeholder="Select currency…"
-              className={inputClass}
-              value={currencyOpen ? currencyQuery : currencyLabel}
-              onFocus={() => {
-                setCurrencyQuery("");
-                setCurrencyOpen(true);
-                setCurrencyFocusedIndex(-1);
-              }}
-              onChange={(e) => {
-                setCurrencyQuery(e.target.value);
-                setCurrencyOpen(true);
-                setCurrencyFocusedIndex(-1);
-                if (currency) setCurrency("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown") {
-                  e.preventDefault();
-                  if (!currencyOpen) setCurrencyOpen(true);
-                  setCurrencyFocusedIndex((prev) =>
-                    Math.min(prev + 1, filteredCurrencies.length - 1),
-                  );
-                } else if (e.key === "ArrowUp") {
-                  e.preventDefault();
-                  setCurrencyFocusedIndex((prev) => Math.max(prev - 1, 0));
-                } else if (e.key === "Enter" && currencyOpen) {
-                  e.preventDefault();
-                  if (
-                    currencyFocusedIndex >= 0 &&
-                    currencyFocusedIndex < filteredCurrencies.length
-                  ) {
-                    const c = filteredCurrencies[currencyFocusedIndex];
-                    setCurrency(c.value);
-                    setCurrencyQuery("");
-                    setCurrencyOpen(false);
-                    setCurrencyFocusedIndex(-1);
+        <Controller
+          name="currency"
+          control={control}
+          rules={{ required: "Please select a currency" }}
+          render={({ field, fieldState }) => (
+            <Popover open={currencyOpen} onOpenChange={setCurrencyOpen}>
+              <PopoverAnchor asChild>
+                <Input
+                  aria-label="Currency"
+                  autoComplete="off"
+                  placeholder="Select currency…"
+                  aria-invalid={!!fieldState.error}
+                  className={inputClass}
+                  value={
+                    currencyOpen
+                      ? currencyQuery
+                      : (CURRENCIES.find((c) => c.value === field.value)?.label ?? "")
                   }
-                } else if (e.key === "Escape") {
-                  setCurrencyQuery("");
-                  setCurrencyOpen(false);
-                  setCurrencyFocusedIndex(-1);
-                }
-              }}
-              onBlur={() => {
-                setTimeout(() => {
-                  setCurrencyQuery("");
-                  setCurrencyOpen(false);
-                  setCurrencyFocusedIndex(-1);
-                }, 150);
-              }}
-            />
-          </PopoverAnchor>
-          {currencyOpen && filteredCurrencies.length > 0 && (
-            <PopoverContent
-              align="start"
-              onOpenAutoFocus={(e) => e.preventDefault()}
-              className="p-1 w-[var(--radix-popover-trigger-width)]"
-            >
-              {filteredCurrencies.map((c, index) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  className={cn(
-                    "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
-                    currency === c.value && "font-medium",
-                    (currencyFocusedIndex !== -1
-                      ? currencyFocusedIndex === index
-                      : currency === c.value) && "bg-accent",
-                  )}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    setCurrency(c.value);
+                  onFocus={() => {
                     setCurrencyQuery("");
-                    setCurrencyOpen(false);
+                    setCurrencyOpen(true);
                     setCurrencyFocusedIndex(-1);
                   }}
+                  onChange={(e) => {
+                    setCurrencyQuery(e.target.value);
+                    setCurrencyOpen(true);
+                    setCurrencyFocusedIndex(-1);
+                    if (field.value) field.onChange("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      if (!currencyOpen) setCurrencyOpen(true);
+                      setCurrencyFocusedIndex((prev) =>
+                        Math.min(prev + 1, filteredCurrencies.length - 1),
+                      );
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setCurrencyFocusedIndex((prev) => Math.max(prev - 1, 0));
+                    } else if (e.key === "Enter" && currencyOpen) {
+                      e.preventDefault();
+                      if (
+                        currencyFocusedIndex >= 0 &&
+                        currencyFocusedIndex < filteredCurrencies.length
+                      ) {
+                        const c = filteredCurrencies[currencyFocusedIndex];
+                        field.onChange(c.value);
+                        setCurrencyQuery("");
+                        setCurrencyOpen(false);
+                        setCurrencyFocusedIndex(-1);
+                      }
+                    } else if (e.key === "Escape") {
+                      setCurrencyQuery("");
+                      setCurrencyOpen(false);
+                      setCurrencyFocusedIndex(-1);
+                    }
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setCurrencyQuery("");
+                      setCurrencyOpen(false);
+                      setCurrencyFocusedIndex(-1);
+                    }, 150);
+                  }}
+                />
+              </PopoverAnchor>
+              {currencyOpen && filteredCurrencies.length > 0 && (
+                <PopoverContent
+                  align="start"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  className="p-1 w-[var(--radix-popover-trigger-width)]"
                 >
-                  {c.label}
-                </button>
-              ))}
-            </PopoverContent>
+                  {filteredCurrencies.map((c, index) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      className={cn(
+                        "w-full text-left px-3 py-2 text-sm rounded-md cursor-pointer hover:bg-accent",
+                        field.value === c.value && "font-medium",
+                        (currencyFocusedIndex !== -1
+                          ? currencyFocusedIndex === index
+                          : field.value === c.value) && "bg-accent",
+                      )}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        field.onChange(c.value);
+                        setCurrencyQuery("");
+                        setCurrencyOpen(false);
+                        setCurrencyFocusedIndex(-1);
+                      }}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </PopoverContent>
+              )}
+            </Popover>
           )}
-        </Popover>
+        />
       </div>
     </FormModal>
   );

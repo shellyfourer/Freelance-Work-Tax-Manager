@@ -20,7 +20,9 @@ test.describe.serial("User journey", () => {
     // Authenticate as the e2e test user (dev-only endpoint)
     const loginRes = await page.request.post(`${BACKEND}/api/test/login`);
     if (!loginRes.ok()) {
-      throw new Error(`Test login failed (${loginRes.status()}) — is the backend running with the dev profile?`);
+      throw new Error(
+        `Test login failed (${loginRes.status()}) — is the backend running with the dev profile?`,
+      );
     }
 
     // Clean up existing data using the authenticated session
