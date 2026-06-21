@@ -1,71 +1,38 @@
 import type { IncomeSource, IncomeSourceRequest } from "@/lib/types/client";
-
-const getBaseUrl = () => process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+import { apiFetch, apiUrl, handleResponse } from "@/lib/api/apiFetch";
 
 export async function createIncomeSource(data: IncomeSourceRequest): Promise<IncomeSource> {
-  const res = await fetch(`${getBaseUrl()}/api/clients`, {
+  const res = await apiFetch(apiUrl("/clients"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-    credentials: "include",
   });
-
-  if (!res.ok) {
-    throw new Error("Failed to create income source");
-  }
-
-  return res.json();
+  return handleResponse<IncomeSource>(res, "Failed to create income source");
 }
 
 export async function getIncomeSourcesByUser(): Promise<IncomeSource[]> {
-  const res = await fetch(`${getBaseUrl()}/api/clients`, {
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch income sources");
-  }
-
-  return res.json();
+  const res = await apiFetch(apiUrl("/clients"));
+  return handleResponse<IncomeSource[]>(res, "Failed to fetch income sources");
 }
 
 export async function getIncomeSourceById(id: number): Promise<IncomeSource> {
-  const res = await fetch(`${getBaseUrl()}/api/clients/${id}`, {
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch income source");
-  }
-
-  return res.json();
+  const res = await apiFetch(apiUrl(`/clients/${id}`));
+  return handleResponse<IncomeSource>(res, "Failed to fetch income source");
 }
 
 export async function updateIncomeSource(
   id: number,
   data: IncomeSourceRequest,
 ): Promise<IncomeSource> {
-  const res = await fetch(`${getBaseUrl()}/api/clients/${id}`, {
+  const res = await apiFetch(apiUrl(`/clients/${id}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-    credentials: "include",
   });
-
-  if (!res.ok) {
-    throw new Error("Failed to update income source");
-  }
-
-  return res.json();
+  return handleResponse<IncomeSource>(res, "Failed to update income source");
 }
 
 export async function deleteIncomeSource(id: number): Promise<void> {
-  const res = await fetch(`${getBaseUrl()}/api/clients/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to delete income source");
-  }
+  const res = await apiFetch(apiUrl(`/clients/${id}`), { method: "DELETE" });
+  return handleResponse<void>(res, "Failed to delete income source");
 }
