@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -45,6 +46,7 @@ public class SecurityConfig {
                             .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                             .ignoringRequestMatchers("/ws/**", "/api/test/**")
                     )
+                    .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/ws/**", "/api/test/**").permitAll()
                             .anyRequest().authenticated()
