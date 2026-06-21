@@ -29,9 +29,9 @@ public class TaxCalculationHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         try {
             JsonNode node = objectMapper.readTree(message.getPayload());
-            BigDecimal incomeAmount = new BigDecimal(node.get("incomeAmount").asText());
-            String period = node.get("period").asText();
-            String country = node.get("country").asText();
+            BigDecimal incomeAmount = new BigDecimal(node.get("incomeAmount").asString());
+            String period = node.get("period").asString();
+            String country = node.get("country").asString();
 
             //reuses all the existing logic from the service layer, so we don't have to duplicate it here
             TaxCalculationRequestDto request = new TaxCalculationRequestDto(incomeAmount, period, country);

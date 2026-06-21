@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,7 +80,7 @@ class IncomeRecordControllerTest {
         when(incomeRecordService.createIncomeRecord(any(IncomeRecord.class), anyLong(), any(User.class))).thenReturn(incomeRecord);
 
         mockMvc.perform(post("/api/income-records")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -97,7 +98,7 @@ class IncomeRecordControllerTest {
     @Test
     void createIncomeRecord_returns400_whenAmountIsNull() throws Exception {
         mockMvc.perform(post("/api/income-records")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -111,7 +112,7 @@ class IncomeRecordControllerTest {
     @Test
     void createIncomeRecord_returns400_whenAmountIsNegative() throws Exception {
         mockMvc.perform(post("/api/income-records")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -126,7 +127,7 @@ class IncomeRecordControllerTest {
     @Test
     void createIncomeRecord_returns400_whenIncomeSourceIdIsNull() throws Exception {
         mockMvc.perform(post("/api/income-records")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -153,7 +154,7 @@ class IncomeRecordControllerTest {
         doNothing().when(incomeRecordService).deleteIncomeRecord(1L, user);
 
         mockMvc.perform(delete("/api/income-records/1")
-                .with(oidcLogin()))
+                .with(oidcLogin()).with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
