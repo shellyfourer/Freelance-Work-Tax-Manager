@@ -1,93 +1,184 @@
-# Freelance-Tax-Manager
+# Freelance Tax Manager
 
+A web application that helps freelancers calculate, manage, and understand their taxes. Currently supporting Lithuanian tax rules, with multi-country support planned.
 
+## Tech Stack
 
-## Getting started
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui |
+| Backend | Spring Boot 4, Java 21, Spring Security, JPA |
+| Database | PostgreSQL (production), H2 (tests) |
+| Auth | Google OAuth 2.0 |
+| CI/CD | GitLab CI |
+| Code Quality | SonarQube, JaCoCo |
+| Testing | Vitest, Playwright, JUnit 5 |
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Features
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- **Tax Calculator** — calculates Lithuanian freelance taxes in real time via WebSocket (debounced as the user types)
+- **Income Tracking** — log income records and associate them with income sources
+- **Client Management** — manage income sources (clients)
+- **User Onboarding** — profile setup after first login
+- **Google Login** — OAuth 2.0 authentication
 
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Repository Structure
 
 ```
-cd existing_repo
-git remote add origin https://git.fhict.nl/I593500/freelance-tax-manager.git
-git branch -M main
-git push -uf origin main
+Freelance-Tax-Manager/
+├── frontend/          # Next.js app (port 3000)
+└── backend/           # Spring Boot API (port 8080)
 ```
 
-## Integrate with your tools
+## Prerequisites
 
-- [ ] [Set up project integrations](https://git.fhict.nl/I593500/freelance-tax-manager/-/settings/integrations)
+- Java 21
+- Node.js + pnpm
+- Docker & Docker Compose
+- PostgreSQL (production only — local dev uses H2 in-memory)
 
-## Collaborate with your team
+## Getting Started
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Run with Docker Compose
 
-## Test and Deploy
+```bash
+docker compose up --build
+```
 
-Use the built-in continuous integration in GitLab.
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8080
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Run locally
 
-***
+**Backend**
 
-# Editing this README
+```bash
+cd backend
+./gradlew bootRun
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+**Frontend**
 
-## Suggestions for a good README
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Environment Variables
 
-## Name
-Choose a self-explaining name for your project.
+**Backend** (`backend/.env`):
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```env
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+> **Note:** `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are required — without them the backend will fail to start, as Spring Boot cannot configure the OAuth2 client (`ClientRegistrationRepository` is a required dependency). Set these up in the [Google Cloud Console](https://console.cloud.google.com/) under APIs & Services → Credentials, and add `http://localhost:8080/login/oauth2/code/google` as an authorized redirect URI.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+> `DB_USERNAME` and `DB_PASSWORD` are **not** needed for local development — the dev profile uses an H2 in-memory database with hardcoded credentials. They are only required when running with the production profile.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**Frontend** (build arg / `.env.local`):
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Commands
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Frontend
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+cd frontend
+pnpm dev           # Start dev server
+pnpm build         # Production build
+pnpm test          # Unit tests (Vitest)
+pnpm test:e2e      # E2E tests (Playwright)
+pnpm check         # ESLint + Prettier check
+pnpm fix           # ESLint fix + Prettier write
+pnpm test --coverage && sonar-scanner -Dsonar.host.url=<your-sonar-url> -Dsonar.token=<your-token>   # Run SonarQube analysis (coverage must be generated first)
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Backend
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+cd backend
+./gradlew bootRun                    # Start dev server
+./gradlew test                       # Run all tests
+./gradlew assemble                   # Build
+./gradlew test sonar -Dsonar.host.url=<your-sonar-url> -Dsonar.token=<your-token>   # Run SonarQube analysis (runs tests + JaCoCo first)
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## Architecture
 
-## License
-For open source projects, say how it is licensed.
+### Frontend
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Layered structure with strict separation of concerns:
+
+```
+src/
+  app/              # Next.js App Router pages
+  components/       # UI components (no data fetching)
+  lib/
+    api/            # All backend communication
+    types/          # Shared TypeScript types
+    utils/          # Pure utility functions
+  context/          # React context (auth state)
+```
+
+- Components never fetch data directly — all API calls go through `src/lib/api/`
+- UI layer only interacts with the API layer, never with mock data directly
+
+### Backend
+
+```
+src/main/java/com/shelly/freelancetaxmanager/
+  calculator/       # Tax calculation logic (Lithuanian rules)
+  config/           # Security, WebSocket config
+  controller/       # HTTP endpoints only
+  dto/              # Request/Response DTOs
+  entity/           # JPA entities
+  mapper/           # Entity ↔ DTO mapping
+  repository/       # Data access
+  websocket/        # WebSocket handler for tax calculations
+```
+
+**API endpoints:**
+
+| Method | Path | Description |
+|---|---|---|
+| WS | `/ws/tax-calculator` | Real-time tax calculation (WebSocket) |
+| POST | `/api/tax/calculate` | Calculate taxes (REST) |
+| GET | `/api/income-records` | List all income records |
+| POST | `/api/income-records` | Create income record |
+| GET | `/api/income-records/{id}` | Get income record by ID |
+| PUT | `/api/income-records/{id}` | Update income record |
+| DELETE | `/api/income-records/{id}` | Delete income record |
+| GET | `/api/clients` | List all clients (income sources) |
+| POST | `/api/clients` | Create client |
+| GET | `/api/clients/{id}` | Get client by ID |
+| PUT | `/api/clients/{id}` | Update client |
+| DELETE | `/api/clients/{id}` | Delete client |
+| GET | `/api/auth/me` | Get current user |
+| POST | `/api/auth/setup` | Complete user onboarding |
+
+## CI/CD Pipeline
+
+GitLab CI runs the following stages on every push:
+
+1. **build** — compile backend, build frontend
+2. **test** — backend unit tests + JaCoCo coverage; frontend unit tests + linting
+3. **e2e-test** — Playwright tests against full Docker stack
+4. **sonarqube-check** — static analysis for both frontend and backend
+5. **push** — build and push Docker images to Docker Hub (main branch only)
+6. **deploy** — pull latest images and restart containers on production server (main branch only)
+
+## Production Deployment
+
+The production stack runs via Docker Compose using pre-built images:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Required environment variables on the server: `DB_USERNAME`, `DB_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_API_URL`.
