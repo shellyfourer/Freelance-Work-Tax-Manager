@@ -1,11 +1,12 @@
 // Methods that change server state - these need a CSRF token attached
 const MUTATING_METHODS = new Set(["POST", "PUT", "DELETE", "PATCH"]);
 
-// Falls back to localhost when the env variable isn't set
+// Read at call time (not module load time) so vi.stubEnv works in tests
 export const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export function apiUrl(path: string): string {
-  return `${BASE_URL}/api${path}`;
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+  return `${base}/api${path}`;
 }
 
 // Turns a raw Response into typed data, or throws a meaningful error message
