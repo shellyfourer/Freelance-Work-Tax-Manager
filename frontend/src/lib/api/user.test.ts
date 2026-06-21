@@ -15,25 +15,45 @@ const mockUser: User = {
   setupComplete: false,
 };
 
+const okJson = (data: unknown) => ({
+  ok: true,
+  status: 200,
+  headers: { get: () => null },
+  json: () => Promise.resolve(data),
+});
+const okEmpty = () => ({
+  ok: true,
+  status: 204,
+  headers: { get: () => null },
+});
+const errorRes = (status = 500) => ({
+  ok: false,
+  status,
+  headers: { get: () => null },
+  text: () => Promise.resolve(""),
+});
+
 describe("createCompleteUser", () => {
   test("calls POST /api/auth/setup with the correct URL and body", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
+    const mockFetch = vi.fn().mockResolvedValue(okEmpty());
+    vi.stubGlobal("fetch", mockFetch);
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
     await createCompleteUser(mockRequest);
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/auth/setup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mockRequest),
-      credentials: "include",
-    });
+    const [url, options] = mockFetch.mock.calls[0];
+    expect(url).toBe("http://localhost:8080/api/auth/setup");
+    expect(options.method).toBe("POST");
+    expect(options.credentials).toBe("include");
+    expect(options.body).toBe(JSON.stringify(mockRequest));
+    expect((options.headers as Headers).get("Content-Type")).toBe("application/json");
+
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
 
   test("resolves without a value on success", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(okEmpty()));
 
     await expect(createCompleteUser(mockRequest)).resolves.toBeUndefined();
 
@@ -41,7 +61,7 @@ describe("createCompleteUser", () => {
   });
 
   test("throws on a non-ok response", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(errorRes(500)));
 
     await expect(createCompleteUser(mockRequest)).rejects.toThrow("Failed to finalize user setup");
 
@@ -51,27 +71,22 @@ describe("createCompleteUser", () => {
 
 describe("getCurrentUser", () => {
   test("calls GET /api/auth/me with correct URL and credentials", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockUser) }),
-    );
+    const mockFetch = vi.fn().mockResolvedValue(okJson(mockUser));
+    vi.stubGlobal("fetch", mockFetch);
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:8080");
 
     await getCurrentUser();
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8080/api/auth/me", {
-      credentials: "include",
-    });
+    const [url, options] = mockFetch.mock.calls[0];
+    expect(url).toBe("http://localhost:8080/api/auth/me");
+    expect(options.credentials).toBe("include");
 
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
 
   test("returns the user on success", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockUser) }),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(okJson(mockUser)));
 
     const result = await getCurrentUser();
 
@@ -81,7 +96,7 @@ describe("getCurrentUser", () => {
   });
 
   test("returns null on 401", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 401 }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(errorRes(401)));
 
     const result = await getCurrentUser();
 
@@ -91,7 +106,7 @@ describe("getCurrentUser", () => {
   });
 
   test("throws on other non-ok responses", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(errorRes(500)));
 
     await expect(getCurrentUser()).rejects.toThrow("Failed to fetch user");
 
