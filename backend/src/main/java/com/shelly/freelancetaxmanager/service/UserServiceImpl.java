@@ -25,9 +25,8 @@ public class UserServiceImpl implements UserService {
         String email = oidcUser.getEmail();
         String name = oidcUser.getFullName();
 
-        return userRepository.findByGoogleId(googleId).orElseGet(() -> {
-            //check if user already exists with this email
-            return userRepository.findByEmail(email).map(existing -> {
+        return userRepository.findByGoogleId(googleId).orElseGet(() ->
+            userRepository.findByEmail(email).map(existing -> {
                 existing.setGoogleId(googleId);
                 log.info("Linked Google ID to existing user: {}", email);
                 return userRepository.save(existing);
@@ -38,8 +37,8 @@ public class UserServiceImpl implements UserService {
                 newUser.setName(name);
                 log.info("Created new user from Google login: {}", email);
                 return userRepository.save(newUser);
-            });
-        });
+            })
+        );
     }
 
     @Override

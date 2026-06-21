@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -82,7 +83,7 @@ class AuthControllerTest {
         doNothing().when(userService).setup(any(), any(), any());
 
         mockMvc.perform(post("/api/auth/setup")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -96,7 +97,7 @@ class AuthControllerTest {
     @Test
     void setup_returns400_whenCountryIsBlank() throws Exception {
         mockMvc.perform(post("/api/auth/setup")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -110,7 +111,7 @@ class AuthControllerTest {
     @Test
     void setup_returns400_whenCurrencyIsBlank() throws Exception {
         mockMvc.perform(post("/api/auth/setup")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -124,6 +125,7 @@ class AuthControllerTest {
     @Test
     void setup_returns401_whenNotAuthenticated() throws Exception {
         mockMvc.perform(post("/api/auth/setup")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {

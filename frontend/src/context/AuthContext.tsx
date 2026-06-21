@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         router.push("/login");
       });
-  }, []);
+  }, [router]);
 
   return (
     //AuthContext.Provider is generated auto when we call CreateContext

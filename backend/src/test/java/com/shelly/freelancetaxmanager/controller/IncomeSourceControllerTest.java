@@ -23,6 +23,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -68,7 +69,7 @@ public class IncomeSourceControllerTest {
         when(incomeSourceService.createIncomeSource(any(IncomeSource.class), any(User.class))).thenReturn(incomeSource);
 
         mockMvc.perform(post("/api/clients")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -86,7 +87,7 @@ public class IncomeSourceControllerTest {
     @Test
     void createIncomeSource_returns400_whenNameIsBlank() throws Exception {
         mockMvc.perform(post("/api/clients")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -101,7 +102,7 @@ public class IncomeSourceControllerTest {
     @Test
     void createIncomeSource_returns400_whenPaymentTypeIsNull() throws Exception {
         mockMvc.perform(post("/api/clients")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -114,7 +115,7 @@ public class IncomeSourceControllerTest {
     @Test
     void createIncomeSource_returns400_whenHourlyRateIsNegative() throws Exception {
         mockMvc.perform(post("/api/clients")
-                .with(oidcLogin())
+                .with(oidcLogin()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -143,7 +144,7 @@ public class IncomeSourceControllerTest {
         doNothing().when(incomeSourceService).deleteIncomeSource(1L, user);
 
         mockMvc.perform(delete("/api/clients/1")
-                .with(oidcLogin()))
+                .with(oidcLogin()).with(csrf()))
                 .andExpect(status().isNoContent());
     }
 

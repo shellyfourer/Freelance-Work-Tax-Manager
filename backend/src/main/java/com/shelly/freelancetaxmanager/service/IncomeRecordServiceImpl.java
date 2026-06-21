@@ -55,8 +55,8 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
 
     @Override
     public void deleteIncomeRecord(Long id, User user) {
-        IncomeRecord record = getOwnedRecord(id, user);
-        incomeRecordRepository.delete(record);
+        IncomeRecord income = getOwnedRecord(id, user);
+        incomeRecordRepository.delete(income);
         log.info("Income record deleted: id={}, user={}", id, user.getEmail());
     }
 
@@ -71,13 +71,13 @@ public class IncomeRecordServiceImpl implements IncomeRecordService {
     }
 
     private IncomeRecord getOwnedRecord(Long id, User user) {
-        IncomeRecord record = incomeRecordRepository.findById(id)
+        IncomeRecord income = incomeRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id));
-        if (!record.getUser().getUserId().equals(user.getUserId())) {
+        if (!income.getUser().getUserId().equals(user.getUserId())) {
             log.warn("Access violation: user {} attempted to access income record {}", user.getEmail(), id);
             throw new ResourceNotFoundException(INCOME_RECORD_NOT_FOUND + id);
         }
-        return record;
+        return income;
     }
 
     private IncomeSource getOwnedSource(Long id, User user) {

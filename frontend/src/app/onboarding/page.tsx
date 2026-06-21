@@ -52,7 +52,7 @@ export default function OnboardingPage() {
         setIsCheckingAuth(false);
       }
     });
-  }, []);
+  }, [router]);
 
   const filteredCountries = COUNTRIES.filter((c) =>
     c.label.toLowerCase().includes(countryQuery.toLowerCase()),
