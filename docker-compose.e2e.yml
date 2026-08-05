@@ -3,6 +3,9 @@ services:
     build:
       context: ./backend
     image: tax-manager-backend-e2e
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     ports:
       - "8081:8080"
 
