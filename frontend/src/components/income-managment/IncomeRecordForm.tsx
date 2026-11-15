@@ -25,6 +25,7 @@ interface FormValues {
   amount: string;
   hours: string;
   minutes: string;
+  seconds: string;
   incomeDate: string;
   description: string;
 }
@@ -35,10 +36,20 @@ function fmt(n: number): string {
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function decimalToHoursMinutes(decimal: number): { hours: number; minutes: number } {
-  const hours = Math.floor(decimal);
-  const minutes = Math.round((decimal - hours) * 60);
-  return { hours, minutes };
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+function decimalToHoursMinutesSeconds(decimal: number): {
+  hours: number;
+  minutes: number;
+  seconds: number;
+} {
+  const totalSeconds = Math.round(decimal * 3600);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return { hours, minutes, seconds };
 }
 
 export function IncomeRecordForm({
@@ -66,6 +77,7 @@ export function IncomeRecordForm({
       amount: "",
       hours: "",
       minutes: "",
+      seconds: "",
       incomeDate: "",
       description: "",
     },
@@ -74,31 +86,35 @@ export function IncomeRecordForm({
   const incomeSourceId = useWatch({ control, name: "incomeSourceId", defaultValue: "" });
   const hoursRaw = useWatch({ control, name: "hours", defaultValue: "" });
   const minutesRaw = useWatch({ control, name: "minutes", defaultValue: "" });
+  const secondsRaw = useWatch({ control, name: "seconds", defaultValue: "" });
 
   const selectedSource = incomeSources.find((s) => String(s.sourceId) === incomeSourceId) ?? null;
   const isHourly = selectedSource?.paymentType === "HOURLY";
 
   const hoursNum = parseInt(hoursRaw) || 0;
   const minutesNum = parseInt(minutesRaw) || 0;
-  const hasTime = hoursNum > 0 || minutesNum > 0;
-  const totalHoursDecimal = hoursNum + minutesNum / 60;
+  const secondsNum = parseInt(secondsRaw) || 0;
+  const hasTime = hoursNum > 0 || minutesNum > 0 || secondsNum > 0;
+  // Hours are rounded to 2 decimals before billing, then amount is rounded to the cent.
+  const totalHoursDecimal = round2(hoursNum + minutesNum / 60 + secondsNum / 3600);
   const calculatedAmount =
     isHourly && selectedSource?.hourlyRate && hasTime
-      ? totalHoursDecimal * selectedSource.hourlyRate
+      ? round2(totalHoursDecimal * selectedSource.hourlyRate)
       : null;
 
   useEffect(() => {
     if (open) {
       if (editingRecord) {
-        const { hours, minutes } =
+        const { hours, minutes, seconds } =
           editingRecord.hoursWorked != null
-            ? decimalToHoursMinutes(editingRecord.hoursWorked)
-            : { hours: 0, minutes: 0 };
+            ? decimalToHoursMinutesSeconds(editingRecord.hoursWorked)
+            : { hours: 0, minutes: 0, seconds: 0 };
         reset({
           incomeSourceId: String(editingRecord.incomeSourceId),
           amount: String(editingRecord.amount),
           hours: editingRecord.hoursWorked != null ? String(hours) : "",
           minutes: editingRecord.hoursWorked != null && minutes > 0 ? String(minutes) : "",
+          seconds: editingRecord.hoursWorked != null && seconds > 0 ? String(seconds) : "",
           incomeDate: editingRecord.incomeDate,
           description: editingRecord.description ?? "",
         });
@@ -108,6 +124,7 @@ export function IncomeRecordForm({
           amount: "",
           hours: "",
           minutes: "",
+          seconds: "",
           incomeDate: "",
           description: "",
         });
@@ -125,12 +142,14 @@ export function IncomeRecordForm({
   const onSubmit = (values: FormValues) => {
     const h = parseInt(values.hours) || 0;
     const m = parseInt(values.minutes) || 0;
-    const totalHours = h + m / 60;
+    const s = parseInt(values.seconds) || 0;
+    // Round hours to 2 decimals first, then bill and round the amount to the cent.
+    const totalHours = round2(h + m / 60 + s / 3600);
 
     const hoursWorked = isHourly ? totalHours : undefined;
     const amount =
       isHourly && selectedSource?.hourlyRate
-        ? totalHours * selectedSource.hourlyRate
+        ? round2(totalHours * selectedSource.hourlyRate)
         : parseFloat(values.amount);
 
     onSave({
@@ -271,7 +290,7 @@ export function IncomeRecordForm({
               <Label className="text-caption">Time Worked</Label>
               <span className="text-muted-foreground text-caption">Required</span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Input
                   id="form-hours"
@@ -287,7 +306,9 @@ export function IncomeRecordForm({
                       if (!isHourly) return true;
                       const h = parseInt(v) || 0;
                       const m = parseInt(minutesRaw) || 0;
-                      if (h === 0 && m === 0) return "Enter at least 1 hour or 1 minute";
+                      const s = parseInt(secondsRaw) || 0;
+                      if (h === 0 && m === 0 && s === 0)
+                        return "Enter at least 1 hour, 1 minute or 1 second";
                       if (v && parseInt(v) < 0) return "Hours cannot be negative";
                       return true;
                     },
@@ -316,10 +337,31 @@ export function IncomeRecordForm({
                 />
                 <span className="text-caption text-muted-foreground text-center">min (0–59)</span>
               </div>
+              <div className="flex flex-col gap-1.5">
+                <Input
+                  id="form-seconds"
+                  type="number"
+                  min="0"
+                  max="59"
+                  step="1"
+                  placeholder="0"
+                  aria-label="Seconds"
+                  aria-invalid={!!errors.seconds}
+                  className={inputClass}
+                  {...register("seconds", {
+                    validate: (v) => {
+                      if (!v || v === "") return true;
+                      const s = parseInt(v);
+                      return (s >= 0 && s <= 59) || "Seconds must be 0–59";
+                    },
+                  })}
+                />
+                <span className="text-caption text-muted-foreground text-center">sec (0–59)</span>
+              </div>
             </div>
-            {(errors.hours || errors.minutes) && (
+            {(errors.hours || errors.minutes || errors.seconds) && (
               <p className="text-caption text-destructive">
-                ⚠ {errors.hours?.message ?? errors.minutes?.message}
+                ⚠ {errors.hours?.message ?? errors.minutes?.message ?? errors.seconds?.message}
               </p>
             )}
           </div>
