@@ -5,12 +5,7 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - github-migration
   pull_request:
-    branches:
-      - main
 
 jobs:
   backend-build:
@@ -129,7 +124,7 @@ jobs:
         run: pnpm test --coverage
 
   e2e-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - backend-test
       - frontend-test
