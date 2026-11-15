@@ -148,14 +148,78 @@ describe("IncomeRecordForm", () => {
   });
 
   describe("hourly client", () => {
-    test("shows hours and minutes fields, not amount input", async () => {
+    test("shows hours, minutes and seconds fields, not amount input", async () => {
       render(<IncomeRecordForm {...defaultProps} />);
 
       await selectClient("Dev Studio");
 
       expect(screen.getByLabelText(/^hours$/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/^minutes$/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^seconds$/i)).toBeInTheDocument();
       expect(screen.queryByLabelText(/income amount/i)).not.toBeInTheDocument();
+    });
+
+    test("seconds must be 0–59", async () => {
+      render(<IncomeRecordForm {...defaultProps} />);
+
+      await selectClient("Dev Studio");
+      fireEvent.change(screen.getByLabelText(/^hours$/i), { target: { value: "5" } });
+      fireEvent.change(screen.getByLabelText(/^seconds$/i), { target: { value: "90" } });
+      fireEvent.change(screen.getByLabelText(/income date/i), { target: { value: PAST } });
+      fireEvent.click(screen.getByRole("button", { name: /save/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/seconds must be 0–59/i)).toBeInTheDocument();
+      });
+    });
+
+    test("calls onSave with decimal hours when seconds are entered", async () => {
+      const onSave = vi.fn();
+      render(<IncomeRecordForm {...defaultProps} onSave={onSave} />);
+
+      await selectClient("Dev Studio");
+      fireEvent.change(screen.getByLabelText(/^hours$/i), { target: { value: "1" } });
+      fireEvent.change(screen.getByLabelText(/^minutes$/i), { target: { value: "30" } });
+      fireEvent.change(screen.getByLabelText(/^seconds$/i), { target: { value: "30" } });
+      fireEvent.change(screen.getByLabelText(/income date/i), { target: { value: PAST } });
+
+      fireEvent.submit(screen.getByRole("button", { name: /save/i }).closest("form")!);
+
+      await waitFor(() => {
+        const call = onSave.mock.calls[0][0];
+        // 1 + 30/60 + 30/3600 = 1.5083 → rounded to 1.51 hours, amount = 1.51 * 75 = 113.25
+        expect(call.hoursWorked).toBe(1.51);
+        expect(call.amount).toBe(113.25);
+        expect(call.incomeSourceId).toBe(2);
+      });
+    });
+
+    test("rounds hours to 2 decimals before billing, then amount to the cent", async () => {
+      const onSave = vi.fn();
+      const hourlySource: IncomeSource = { ...HOURLY_SOURCE, hourlyRate: 11.3 };
+      render(
+        <IncomeRecordForm
+          {...defaultProps}
+          incomeSources={[FIXED_SOURCE, hourlySource]}
+          onSave={onSave}
+        />,
+      );
+
+      await selectClient("Dev Studio");
+      // 118 h 41 min 35 sec = 118.6930556 h → rounded to 118.69 h
+      fireEvent.change(screen.getByLabelText(/^hours$/i), { target: { value: "118" } });
+      fireEvent.change(screen.getByLabelText(/^minutes$/i), { target: { value: "41" } });
+      fireEvent.change(screen.getByLabelText(/^seconds$/i), { target: { value: "35" } });
+      fireEvent.change(screen.getByLabelText(/income date/i), { target: { value: PAST } });
+
+      fireEvent.submit(screen.getByRole("button", { name: /save/i }).closest("form")!);
+
+      await waitFor(() => {
+        const call = onSave.mock.calls[0][0];
+        // 118.69 × €11.30 = €1,341.197 → rounded to €1,341.20
+        expect(call.hoursWorked).toBe(118.69);
+        expect(call.amount).toBe(1341.2);
+      });
     });
 
     test("shows breakdown box in empty state immediately after client selected", async () => {
@@ -190,7 +254,7 @@ describe("IncomeRecordForm", () => {
       });
     });
 
-    test("requires at least hours or minutes", async () => {
+    test("requires at least hours, minutes or seconds", async () => {
       render(<IncomeRecordForm {...defaultProps} />);
 
       await selectClient("Dev Studio");
@@ -198,7 +262,9 @@ describe("IncomeRecordForm", () => {
       fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
       await waitFor(() => {
-        expect(screen.getByText(/enter at least 1 hour or 1 minute/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/enter at least 1 hour, 1 minute or 1 second/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -250,9 +316,9 @@ describe("IncomeRecordForm", () => {
 
       await waitFor(() => {
         const call = onSave.mock.calls[0][0];
-        // 57 + 28/60 = 57.4667, amount = 57.4667 * 75 = 4310.00
-        expect(call.hoursWorked).toBeCloseTo(57.4667, 3);
-        expect(call.amount).toBeCloseTo(4310.0, 1);
+        // 57 + 28/60 = 57.4667 → rounded to 57.47 hours, amount = 57.47 * 75 = 4310.25
+        expect(call.hoursWorked).toBe(57.47);
+        expect(call.amount).toBe(4310.25);
         expect(call.incomeSourceId).toBe(2);
       });
     });
@@ -308,14 +374,14 @@ describe("IncomeRecordForm", () => {
       expect(screen.getByLabelText(/description/i)).toHaveValue("Consulting");
     });
 
-    test("pre-fills hours and minutes when editing an hourly record", () => {
+    test("pre-fills hours, minutes and seconds when editing an hourly record", () => {
       const editingRecord: IncomeRecord = {
         incomeId: 2,
         incomeSourceId: 2,
         incomeSourceName: "Dev Studio",
-        // 57 + 28/60 ≈ 57.4667
+        // 57 + 28/60 + 30/3600 ≈ 57.475
         amount: 4310,
-        hoursWorked: 57 + 28 / 60,
+        hoursWorked: 57 + 28 / 60 + 30 / 3600,
         incomeDate: PAST,
         description: null,
         paymentType: "HOURLY",
@@ -328,6 +394,7 @@ describe("IncomeRecordForm", () => {
       expect(screen.getByLabelText(/client/i)).toHaveValue("Dev Studio");
       expect(screen.getByLabelText(/^hours$/i)).toHaveValue(57);
       expect(screen.getByLabelText(/^minutes$/i)).toHaveValue(28);
+      expect(screen.getByLabelText(/^seconds$/i)).toHaveValue(30);
     });
   });
 
