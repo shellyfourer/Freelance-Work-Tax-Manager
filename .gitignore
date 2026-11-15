@@ -1,10 +1,25 @@
 # macOS system files
 .DS_Store
 
+# Local docs (planning, architecture notes)
+docs/
+CLAUDE.md
+PLAN.md
+IMPLEMENTATION_PLAN.md
+FRONTEND_TESTING.md
+ORM_AND_JPA.md
+SPRINGBOOT_LAYERS.md
+TEACHING.md
+TESTING.md
+check_tests.md
+post_implementation_audit.md
+pre_auth_fixes.md
+
 # JetBrains IDEs
 .idea/
 
 # Logs
+logs/
 *.log
 
 # Env files
